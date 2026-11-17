@@ -1,0 +1,47 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Generated databases, indexes, and data
+chroma_db/
+*.sqlite3
+data/raw/
+data/private/
+data/processed/*
+!data/processed/.gitkeep
+
+# Model weights and checkpoints
+*.gguf
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.onnx
+models/
+checkpoints/
+
+# Frontend/build outputs
+node_modules/
+dist/
+build/
+.angular/
+
+# IDE and operating system
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
