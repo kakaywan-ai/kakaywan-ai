@@ -109,7 +109,7 @@ Model availability and hardware requirements can change. The team should compare
 
 | Member | Role |
 |---|---|
-| Team Leader | System Architect and Integration Lead |
+| Colleen Jose | System Architect and Integration Lead |
 | Jerlyn Jyd M. Cortez | Ollama and LLM Lead |
 | Theo U. Acosta | Knowledge Base and Data Lead |
 | Isaac A. Bagsangi | RAG Pipeline and Guardrails Lead |
