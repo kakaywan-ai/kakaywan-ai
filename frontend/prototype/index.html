@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kordi: Baguio Eco Forest (Prototype)</title>
+<style>
+:root{--fog:#E4EBE6;--mist:#F3F6F3;--pine:#1F4E3D;--deep:#12302A;--cone:#8A5A3C;--lamp:#E9B949;--ink:#16231E;--card:#FFFFFF;--line:#B9C8BF;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--fog:#0F1C18;--mist:#14251F;--pine:#7FBF9F;--deep:#CFE6D9;--cone:#D2A07F;--lamp:#E9B949;--ink:#E4EEE8;--card:#1B2E27;--line:#2F4A40;color-scheme:dark}}
+*{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:linear-gradient(var(--mist),var(--fog));color:var(--ink);font:16px/1.5 "Trebuchet MS",Verdana,sans-serif}
+header{max-width:960px;margin:0 auto;padding:20px 16px 8px}
+h1{font:700 clamp(26px,5vw,40px)/1.1 Georgia,"Times New Roman",serif;color:var(--deep);margin:0 0 6px}
+header p{margin:0;max-width:60ch;color:var(--ink)}
+.mode{display:inline-flex;margin-top:14px;border:2px solid var(--pine);border-radius:999px;overflow:hidden}
+.mode button{border:0;background:transparent;color:var(--pine);padding:9px 18px;font:inherit;font-weight:700;cursor:pointer}
+.mode button[aria-pressed="true"]{background:var(--pine);color:var(--mist)}
+main{max-width:960px;margin:0 auto;padding:0 16px 40px}
+.stage{position:relative;margin-top:10px;border-radius:18px;background:radial-gradient(ellipse at 50% 0,var(--card),transparent 70%);min-height:230px}
+.bubbles{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding:14px 8px 4px;min-height:120px;align-content:flex-end}
+.hint{width:100%;text-align:center;color:var(--pine);font-style:italic;align-self:center}
+.bubble{border:2px solid var(--pine);background:var(--card);color:var(--ink);border-radius:22px 22px 22px 6px;padding:9px 14px;font:inherit;font-size:15px;cursor:pointer;max-width:290px;text-align:left;animation:pop .45s cubic-bezier(.3,1.5,.5,1) both;animation-delay:calc(var(--i)*70ms)}
+.bubble:hover,.bubble:focus-visible{background:var(--pine);color:var(--mist);outline:3px solid var(--lamp);outline-offset:2px}
+@keyframes pop{from{transform:translate(var(--dx,0),90px) scale(.2);opacity:0}to{transform:none;opacity:1}}
+.forest{display:flex;justify-content:space-around;align-items:flex-end;gap:4px;border-bottom:6px solid var(--pine);padding:0 4px;position:relative}
+.forest::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:60px;background:linear-gradient(transparent,var(--fog));pointer-events:none;opacity:.6}
+.tree{background:none;border:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;padding:0 2px;color:var(--ink);font:inherit;flex:1;min-width:0}
+.tree svg{width:100%;max-width:130px;height:auto;transition:transform .25s}
+.tree .tier{fill:var(--pine)}.tree .trunk{fill:var(--cone)}
+.tree:nth-child(even) .tier{fill:#2D6A52}
+.tree:hover svg,.tree:focus-visible svg{transform:scale(1.05)}
+.tree[aria-pressed="true"] svg{transform:scale(1.12)}
+.tree[aria-pressed="true"] .tier{fill:var(--lamp)}
+.tree:focus-visible{outline:3px solid var(--lamp);outline-offset:2px;border-radius:8px}
+.tree span{font-size:13px;font-weight:700;margin:4px 0 10px;text-align:center;line-height:1.2}
+.ask{display:flex;gap:8px;margin-top:22px}
+.ask input{flex:1;min-width:0;padding:12px 14px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit}
+.ask input:focus{outline:3px solid var(--lamp);border-color:var(--pine)}
+.ask button{border:0;background:var(--pine);color:var(--mist);border-radius:12px;padding:0 20px;font:inherit;font-weight:700;cursor:pointer}
+.answer{margin-top:16px;background:var(--card);border:2px solid var(--line);border-left:8px solid var(--pine);border-radius:12px;padding:16px 18px}
+.answer[hidden]{display:none}
+.answer .q{font:700 18px/1.3 Georgia,serif;color:var(--deep);margin:0 0 8px}
+.answer p{margin:0 0 10px}
+.chip{display:inline-block;background:var(--mist);border:1px solid var(--pine);color:var(--pine);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:700}
+.answer.miss{border-left-color:var(--cone)}
+.note{margin-top:22px;font-size:13px;color:var(--ink);opacity:.8;max-width:70ch}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:560px){.tree span{font-size:11px}.bubble{font-size:14px}}
+</style>
+</head>
+<body>
+<header>
+<h1>Kordi, your guide to a greener Baguio</h1>
+<p>Pick a tree, then pick a question. Every answer will come from official documents, and Kordi tells you when it does not know.</p>
+<div class="mode" role="group" aria-label="Who is asking?">
+<button id="mLocal" aria-pressed="true">I live here</button>
+<button id="mTourist" aria-pressed="false">I'm visiting</button>
+</div>
+</header>
+<main>
+<div class="stage">
+<div class="bubbles" id="bubbles" aria-live="polite"><div class="hint">Tap a tree to see what people ask about it.</div></div>
+<div class="forest" id="forest"></div>
+</div>
+<form class="ask" id="ask">
+<input id="q" type="text" placeholder="Or type your own question" aria-label="Type your own question">
+<button type="submit">Ask Kordi</button>
+</form>
+<section class="answer" id="answer" hidden aria-live="polite"></section>
+<p class="note">Prototype only. The answers below are sample text written to show the layout. In the real build, each answer is retrieved from CEPMO and city documents and cites the exact source.</p>
+</main>
+<script>
+var TOPICS=[
+{id:"trees",name:"Trees and permits",qs:[
+{q:"How do I apply for a tree cutting permit?",a:"local",t:"Sample answer: this is where Kordi will list the permit steps and requirements, quoted from the official guideline.",s:"Tree cutting permit guidelines"},
+{q:"Can I pick or cut plants in a park?",a:"tourist",t:"Sample answer: this is where Kordi will state the park rule on plants, taken from the park visitor rules.",s:"Park visitor rules"},
+{q:"What is the city doing to protect its trees?",a:"both",t:"Sample answer: this is where Kordi will summarize the urban forest plan.",s:"Urban Forest Management Plan"}]},
+{id:"water",name:"Watersheds",qs:[
+{q:"Why are Baguio's watersheds protected?",a:"both",t:"Sample answer: this is where Kordi will explain watershed protection using the city's educational materials.",s:"Watershed program materials"},
+{q:"How can my barangay help protect the watershed?",a:"local",t:"Sample answer: this is where Kordi will list community actions from the official program guide.",s:"Watershed program materials"}]},
+{id:"parks",name:"Parks",qs:[
+{q:"How does Adopt a Park work?",a:"local",t:"Sample answer: this is where Kordi will explain who can adopt a park and the steps, from the program rules.",s:"Adopt a Park guidelines"},
+{q:"What are the rules in Burnham Park?",a:"tourist",t:"Sample answer: this is where Kordi will list the visitor rules for the park.",s:"Park visitor rules"},
+{q:"Where can I learn about eco tourism in Baguio?",a:"tourist",t:"Sample answer: this is where Kordi will summarize eco tourism guidance from the official documents.",s:"Eco tourism guidelines"}]},
+{id:"waste",name:"Waste",qs:[
+{q:"How do I segregate my waste?",a:"both",t:"Sample answer: this is where Kordi will give the segregation guide from the city's waste documents.",s:"Waste segregation guide"},
+{q:"What are the rules on plastic?",a:"both",t:"Sample answer: this is where Kordi will state the plastic rules from the city ordinance.",s:"City plastic ordinance"},
+{q:"When does garbage collection happen in my barangay?",a:"local",t:"Sample answer: this is where Kordi will show the schedule if an official schedule is loaded.",s:"Barangay collection schedule"}]},
+{id:"air",name:"Clean air",qs:[
+{q:"What does the city do about air pollution?",a:"both",t:"Sample answer: this is where Kordi will describe clean air programs from the official documents.",s:"Clean air program materials"},
+{q:"What are the rules on smoking and vaping in public places?",a:"tourist",t:"Sample answer: this is where Kordi will state the rule as written in the ordinance.",s:"Smoke free ordinance"}]}
+];
+var mode="local",cur=null;
+var forest=document.getElementById("forest"),bub=document.getElementById("bubbles"),ans=document.getElementById("answer");
+function treeSVG(){return '<svg viewBox="0 0 100 130" aria-hidden="true"><polygon class="tier" points="50,4 78,46 22,46"/><polygon class="tier" points="50,24 86,76 14,76"/><polygon class="tier" points="50,48 92,108 8,108"/><rect class="trunk" x="44" y="106" width="12" height="22"/></svg>'}
+TOPICS.forEach(function(t,i){var b=document.createElement("button");b.className="tree";b.setAttribute("aria-pressed","false");b.dataset.id=t.id;b.style.marginBottom=(i%2?"0":"10px");b.innerHTML=treeSVG()+"<span>"+t.name+"</span>";b.onclick=function(){cur=t.id;showBubbles(i)};forest.appendChild(b)});
+function showBubbles(idx){
+ [].forEach.call(forest.children,function(c){c.setAttribute("aria-pressed",c.dataset.id===cur?"true":"false")});
+ var t=TOPICS.filter(function(x){return x.id===cur})[0];bub.innerHTML="";
+ var list=t.qs.filter(function(x){return x.a==="both"||x.a===mode});
+ if(!list.length){bub.innerHTML='<div class="hint">No questions here for this group yet.</div>';return}
+ var dx=((idx-(TOPICS.length-1)/2)*18)+"%";
+ list.forEach(function(x,i){var b=document.createElement("button");b.className="bubble";b.style.setProperty("--i",i);b.style.setProperty("--dx",dx);b.textContent=x.q;b.onclick=function(){show(x)};bub.appendChild(b)});
+}
+function show(x){ans.hidden=false;ans.className="answer";ans.innerHTML='<p class="q"></p><p></p><span class="chip"></span>';
+ ans.children[0].textContent=x.q;ans.children[1].textContent=x.t;ans.children[2].textContent="Source: "+x.s;ans.scrollIntoView({behavior:"smooth",block:"nearest"})}
+function setMode(m){mode=m;document.getElementById("mLocal").setAttribute("aria-pressed",m==="local");document.getElementById("mTourist").setAttribute("aria-pressed",m==="tourist");if(cur)showBubbles(TOPICS.map(function(x){return x.id}).indexOf(cur))}
+document.getElementById("mLocal").onclick=function(){setMode("local")};
+document.getElementById("mTourist").onclick=function(){setMode("tourist")};
+document.getElementById("ask").onsubmit=function(e){e.preventDefault();
+ var v=document.getElementById("q").value.toLowerCase().trim();if(!v)return;
+ var words=v.split(/\W+/).filter(function(w){return w.length>3}),best=null,score=0;
+ TOPICS.forEach(function(t){t.qs.forEach(function(x){var s=0,ql=x.q.toLowerCase();words.forEach(function(w){if(ql.indexOf(w)>-1)s++});if(s>score){score=s;best=x}})});
+ if(best&&score>=2){show(best)}else{ans.hidden=false;ans.className="answer miss";ans.innerHTML='<p class="q">Information not available</p><p>Let me check official records. Kordi only answers from the documents it has, and nothing in them matches this question yet.</p><span class="chip">No source found</span>'}};
+</script>
+</body>
+</html>

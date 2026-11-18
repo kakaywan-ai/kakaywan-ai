@@ -1,0 +1,14 @@
+# Initial unpinned starter dependencies.
+# After the team confirms a working environment, pin tested versions
+# and commit a reproducible lock/constraints file.
+ollama
+langchain
+langchain-community
+chromadb
+sentence-transformers
+pypdf
+fastapi
+uvicorn[standard]
+python-dotenv
+pytest
+httpx
