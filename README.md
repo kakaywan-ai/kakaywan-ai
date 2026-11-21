@@ -111,8 +111,8 @@ Model availability and hardware requirements can change. The team should compare
 |---|---|
 | Colleen Jose | System Architect and Integration Lead |
 | Jerlyn Jyd M. Cortez | Ollama and LLM Lead |
-| Theo U. Acosta | Knowledge Base and Data Lead |
-| Isaac A. Bagsangi | RAG Pipeline and Guardrails Lead |
+| Theo U. Acosta | RAG Pipeline and Guardrails Lead | 
+| Isaac A. Bagsangi | Knowledge Base and Data Lead |
 | Karl Angelo B. Marteja | Frontend and API Lead |
 
 See [`TASKS.md`](TASKS.md) for detailed responsibilities, handoffs, learning requirements, and the two-week plan. See [`CONTRIBUTING.md`](CONTRIBUTING.md) before making changes.
