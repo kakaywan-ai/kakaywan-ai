@@ -56,7 +56,7 @@ Main deliverables:
 2. Test candidate models such as Gemma 3 and Llama 3 variants, choosing sizes based on available RAM/VRAM.
 3. Demonstrate the basic Ollama commands: `ollama pull`, `ollama list`, `ollama run`, and `ollama rm`.
 4. Create and explain a Kordi Modelfile using `FROM`, `PARAMETER`, and `SYSTEM`.
-5. Implement the Python Ollama client and coordinate its interface with Isaac.
+5. Implement the Python Ollama client and coordinate its interface with Theo.
 6. Compare models using the same questions and record answer quality, instruction following, latency, and hardware use.
 7. Lead the optional LoRA fine-tuning experiment if the core RAG prototype is stable.
 8. Document what was actually trained, what data was used, and the evaluation results.
@@ -102,7 +102,7 @@ Owns:
 - Embedding and vector-store implementation
 - Retrieval tests
 - Grounding and fallback logic
-- Coordination of RAG integration with Jerlyn and Theo
+- Coordination of RAG integration with Jerlyn and Isaac
 
 Main deliverables:
 1. Learn and explain embeddings and semantic search.
