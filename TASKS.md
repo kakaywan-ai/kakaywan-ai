@@ -68,7 +68,7 @@ Important distinction:
 - RAG retrieves external knowledge at question time.
 - RAG is the factual knowledge mechanism for this project; fine-tuning is an optional experiment for style or answer format.
 
-### Theo U. Acosta — Knowledge Base and Data Lead
+### Isaac A. Bagsangi — Knowledge Base and Data Lead
 
 **Primary responsibility:** Ensure the chatbot's knowledge base is traceable, clean, current, and based only on approved materials.
 
@@ -93,7 +93,7 @@ Main deliverables:
 
 Do not upload original CEPMO files to the public repository merely because they were provided to the team.
 
-### Isaac A. Bagsangi — RAG Pipeline and Guardrails Lead
+### Theo U. Acosta — RAG Pipeline and Guardrails Lead
 
 **Primary responsibility:** Build the retrieval system that finds relevant evidence and controls when Kordi may answer.
 
