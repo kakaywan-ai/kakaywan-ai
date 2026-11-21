@@ -184,8 +184,8 @@ Every member must complete these shared exercises:
 
 Suggested mini-workshops:
 - Jerlyn: Ollama, model selection, Modelfile, Python client.
-- Theo: source preparation, PDF extraction, metadata, chunking.
-- Isaac: embeddings, vector databases, retrieval, guardrails.
+- Isaac: source preparation, PDF extraction, metadata, chunking.
+- Theo: embeddings, vector databases, retrieval, guardrails.
 - Karl: API integration, frontend request/response handling.
 - Team Leader: architecture, evaluation, integration, and defense.
 
@@ -194,31 +194,31 @@ Suggested mini-workshops:
 ### Days 1–2: Foundations
 - Team Leader: confirm public repository, ruleset, issues, project board, architecture, and API contract.
 - Jerlyn: install Ollama, test a small model, demonstrate the commands and Modelfile.
-- Theo: inventory available documents, verify source links and permission status.
-- Isaac: study embeddings/ChromaDB and produce a minimal retrieval design.
+- Isaac: inventory available documents, verify source links and permission status.
+- Theo: study embeddings/ChromaDB and produce a minimal retrieval design.
 - Karl: preserve the prototype, decide the frontend approach with the team, and define the API integration point.
 - Everyone: clone the repo, create a virtual environment, run the starter setup, and complete an Ollama smoke test.
 
 ### Days 3–5: First working RAG prototype
-- Theo: extraction, cleaning, chunking, metadata, and approved sample corpus.
-- Isaac: embeddings, ChromaDB, retrieval, and retrieval tests.
+- Isaac: extraction, cleaning, chunking, metadata, and approved sample corpus.
+- Theo: embeddings, ChromaDB, retrieval, and retrieval tests.
 - Jerlyn: Ollama Python client and model comparison baseline.
 - Karl: FastAPI endpoint and frontend API connection using a placeholder response first.
 - Team Leader: integrate early, test the end-to-end flow, and document blockers.
 - Target: one question can travel from frontend to API to retrieval to Ollama and return an answer with source metadata by Day 5.
 
 ### Days 6–7: Grounding and interface integration
-- Isaac: relevance/sufficiency checks, fallback, source attribution, adversarial tests.
+- Theo: relevance/sufficiency checks, fallback, source attribution, adversarial tests.
 - Jerlyn: tune inference parameters and coordinate prompt behavior.
-- Theo: verify document/page metadata and identify conflicts or outdated sources.
+- Isaac: verify document/page metadata and identify conflicts or outdated sources.
 - Karl: connect real responses, show sources, implement loading/error/fallback UI.
 - Team Leader: run end-to-end tests and review failures with owners.
 
 ### Days 8–9: Evaluation and improvement
 - All members: run the shared question set and record failures.
 - Jerlyn: compare candidate language models; perform LoRA experiment only if core work is stable.
-- Isaac: compare retrieval settings and embedding models.
-- Theo: verify answer evidence against source documents and maintain source register.
+- Theo: compare retrieval settings and embedding models.
+- Isaac: verify answer evidence against source documents and maintain source register.
 - Karl: usability and responsive-interface testing.
 - Team Leader: consolidate metrics, limitations, risk register, and defense notes.
 
