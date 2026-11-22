@@ -96,6 +96,19 @@ pip install -r requirements.txt
 
 6. Copy `.env.example` to `.env` and adjust local settings. Never commit `.env`.
 
+To use one local PDF as Kordi's knowledge base, place it at `data/processed.pdf`,
+pull the configured embedding model, ingest it, and start the API:
+
+```powershell
+ollama pull gemma3:1b
+ollama pull nomic-embed-text
+python -m ingest.pdf_ingest
+python -m uvicorn api.main:app --reload
+```
+
+Open `http://127.0.0.1:8000`. Kordi will answer through `POST /api/chat` and
+return source page metadata when the PDF provides extractable text.
+
 7. Check available model and hardware capacity before downloading a model. For a lightweight initial test:
 
 ```bash
