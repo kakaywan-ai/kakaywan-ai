@@ -69,7 +69,7 @@ main{max-width:960px;margin:0 auto;padding:0 16px 40px}
 <button type="submit">Ask Kordi</button>
 </form>
 <section class="answer" id="answer" hidden aria-live="polite"></section>
-<p class="note">Prototype only. The answers below are sample text written to show the layout. In the real build, each answer is retrieved from CEPMO and city documents and cites the exact source.</p>
+<p class="note">Kordi answers only from the approved documents it has been given and shows the sources it used. If the documents do not cover your question, it will say so. Kordi can make mistakes, so check important details with the issuing office.</p>
 </main>
 <script>
 var TOPICS=[
@@ -102,42 +102,125 @@ function showBubbles(idx){
  var list=t.qs.filter(function(x){return x.a==="both"||x.a===mode});
  if(!list.length){bub.innerHTML='<div class="hint">No questions here for this group yet.</div>';return}
  var dx=((idx-(TOPICS.length-1)/2)*18)+"%";
- list.forEach(function(x,i){var b=document.createElement("button");b.className="bubble";b.style.setProperty("--i",i);b.style.setProperty("--dx",dx);b.textContent=x.q;b.onclick=function(){show(x)};bub.appendChild(b)});
+ list.forEach(function(x,i){var b=document.createElement("button");b.className="bubble";b.style.setProperty("--i",i);b.style.setProperty("--dx",dx);b.textContent=x.q;b.onclick=function(){ask(x.q)};bub.appendChild(b)});
 }
 function show(x){askAPI(x.q)}
 function setMode(m){mode=m;document.getElementById("mLocal").setAttribute("aria-pressed",m==="local");document.getElementById("mTourist").setAttribute("aria-pressed",m==="tourist");if(cur)showBubbles(TOPICS.map(function(x){return x.id}).indexOf(cur))}
 document.getElementById("mLocal").onclick=function(){setMode("local")};
 document.getElementById("mTourist").onclick=function(){setMode("tourist")};
-document.getElementById("ask").onsubmit=function(e){e.preventDefault();var v=document.getElementById("q").value.trim();if(v)askAPI(v)};
-async function askAPI(question){
- ans.hidden=false;ans.className="answer";ans.innerHTML='<p class="q"></p><p>Searching the approved records...</p>';
- ans.children[0].textContent=question;
- try{
-  var response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:question})});
-  var data=await response.json();
-  if(!response.ok)throw new Error(data.detail||"Could not reach Kordi.");
-  ans.className=data.grounded?"answer":"answer miss";
-  ans.innerHTML='<p class="q"></p><p></p>';
-  ans.children[0].textContent=question;
-  ans.children[1].textContent=data.answer;
-  if(data.sources&&data.sources.length){
-   data.sources.forEach(function(source){
-    var chip=document.createElement("span");chip.className="chip";
-    var label=source.document||"Source";
-    if(source.page)label+=" - page "+source.page;
-    if(source.section)label+=" - "+source.section;
-    chip.textContent=label;ans.appendChild(chip);ans.appendChild(document.createTextNode(" "));
-   });
-  }else{
-   var chip=document.createElement("span");chip.className="chip";chip.textContent="No source found";ans.appendChild(chip);
-  }
-  ans.scrollIntoView({behavior:"smooth",block:"nearest"});
- }catch(error){
-  ans.className="answer miss";
-  ans.innerHTML='<p class="q">Kordi is unavailable</p><p></p><span class="chip">API connection error</span>';
-  ans.children[1].textContent=error.message;
- }
+
+document.getElementById("ask").onsubmit = function (e) {
+    e.preventDefault();
+
+    var inp = document.getElementById("q");
+    var question = inp.value.trim();
+
+    if (question) {
+        ask(question);
+    }
+};
+
+var busy = false;
+
+function render(question, body, chips, miss) {
+    ans.hidden = false;
+    ans.className = "answer" + (miss ? " miss" : "");
+
+    ans.innerHTML =
+        '<p class="q"></p><p class="body"></p><div class="chips"></div>';
+
+    ans.children[0].textContent = question;
+    ans.children[1].textContent = body;
+
+    chips.forEach(function (text) {
+        var chip = document.createElement("span");
+        chip.className = "chip";
+        chip.style.marginRight = "6px";
+        chip.textContent = text;
+        ans.children[2].appendChild(chip);
+    });
+
+    ans.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+    });
 }
+
+async function ask(question) {
+    if (busy) return;
+
+    busy = true;
+
+    render(
+        question,
+        "Kordi is checking the approved documents...",
+        [],
+        false
+    );
+
+    try {
+        var response = await fetch("/api/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                message: question,
+                mode: typeof mode !== "undefined" ? mode : null
+            })
+        });
+
+        var data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.detail ||
+                (response.status === 503
+                    ? "Kordi's language model is unavailable. Please check Ollama."
+                    : "Something went wrong (" + response.status + ").")
+            );
+        }
+
+        var sourceChips = [];
+
+        if (data.sources && data.sources.length > 0) {
+            data.sources.forEach(function (source) {
+                var label = source.document || "Source";
+
+                if (source.page) {
+                    label += " - page " + source.page;
+                }
+
+                if (source.section) {
+                    label += " - " + source.section;
+                }
+
+                sourceChips.push(label);
+            });
+        } else {
+            sourceChips.push("No source found");
+        }
+
+        render(
+            question,
+            data.answer,
+            sourceChips,
+            !data.grounded
+        );
+
+    } catch (error) {
+        render(
+            question,
+            error.message || "Could not reach Kordi. Please try again.",
+            ["API connection error"],
+            true
+        );
+
+    } finally {
+        busy = false;
+    }
+}
+
 </script>
 </body>
 </html>

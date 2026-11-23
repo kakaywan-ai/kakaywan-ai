@@ -1,75 +1,93 @@
+
+"""FastAPI app. Run from the repo root: uvicorn api.main:app --reload"""
 from __future__ import annotations
 
-import os
-from contextlib import asynccontextmanager
+from functools import lru_cache
 from pathlib import Path
+from typing import Optional
 
-import chromadb
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
-from ingest.pdf_ingest import ingest_pdf
-from rag.pipeline import chat
+import config
+from llm.ollama_client import OllamaClient, OllamaUnavailable
+from rag.embeddings import Embedder
+from rag.pipeline import KordiPipeline
+from rag.retriever import Retriever, get_collection
 
-ROOT = Path(__file__).resolve().parents[1]
-PROTOTYPE = ROOT / "frontend" / "prototype"
+app = FastAPI(title="Kordi API", version="0.5")
 
 
 class ChatRequest(BaseModel):
-    message: str = Field(min_length=1, max_length=2000)
+    message: str = Field(..., max_length=config.MAX_MESSAGE_CHARS)
+    mode: Optional[str] = Field(
+        None,
+        description="Optional: 'local' or 'tourist'"
+    )
+
+    @field_validator("message")
+    @classmethod
+    def not_blank(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("message must not be empty")
+        return v
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    pdf_path = Path(os.getenv("PDF_PATH", str(ROOT / "data" / "processed.pdf")))
-    if not pdf_path.is_absolute():
-        pdf_path = ROOT / pdf_path
-    if pdf_path.is_file():
-        chroma_dir = Path(os.getenv("CHROMA_DIR", str(ROOT / "chroma_db")))
-        if not chroma_dir.is_absolute():
-            chroma_dir = ROOT / chroma_dir
-        chroma_dir.mkdir(parents=True, exist_ok=True)
-        client = chromadb.PersistentClient(path=str(chroma_dir))
-        collection = client.get_or_create_collection("kordi_documents")
-        if collection.count() == 0:
-            try:
-                ingest_pdf(pdf_path)
-            except Exception as exc:
-                app.state.ingest_error = str(exc)
-    yield
+class Source(BaseModel):
+    document: str
+    page: Optional[int] = None
+    section: Optional[str] = None
 
 
-app = FastAPI(title="Kordi RAG API", lifespan=lifespan)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["GET", "POST"],
-    allow_headers=["*"],
-)
+class ChatResponse(BaseModel):
+    answer: str
+    sources: list[Source]
+    grounded: bool
+
+
+@lru_cache
+def get_llm() -> OllamaClient:
+    return OllamaClient()
+
+
+@lru_cache
+def get_retriever() -> Retriever:
+    return Retriever(get_collection(), Embedder())
+
+
+def get_pipeline() -> KordiPipeline:
+    return KordiPipeline(get_retriever(), get_llm())
+
+
+@app.post("/api/chat", response_model=ChatResponse)
+def chat(req: ChatRequest, pipeline: KordiPipeline = Depends(get_pipeline)):
+    try:
+        result = pipeline.ask(req.message, req.mode)
+    except OllamaUnavailable as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+    return ChatResponse(
+        answer=result.answer,
+        sources=result.sources,
+        grounded=result.grounded
+    )
 
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok"}
+    info = get_llm().health()
+    info["chunks_indexed"] = get_retriever().count()
+    return info
 
 
-@app.post("/api/chat")
-def api_chat(request: ChatRequest):
-    message = request.message.strip()
-    if not message:
-        raise HTTPException(status_code=400, detail="message must not be empty")
-    try:
-        return chat(message)
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
-    except Exception as exc:
-        raise HTTPException(status_code=503, detail=f"Chat service unavailable: {exc}")
+# Serve the frontend prototype after registering API routes.
+_frontend = Path(__file__).resolve().parent.parent / "frontend" / "prototype"
 
-
-@app.get("/")
-def prototype():
-    return FileResponse(PROTOTYPE / "index.html")
-
+if _frontend.is_dir():
+    app.mount(
+        "/",
+        StaticFiles(directory=_frontend, html=True),
+        name="frontend"
+    )
