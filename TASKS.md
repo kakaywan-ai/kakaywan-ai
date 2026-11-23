@@ -84,7 +84,7 @@ Main deliverables:
 2. Record title, issuing office, publication/date received, source URL or how received, permission/publication status, and version.
 3. Verify the CEPMO online reference document before recording it as an official source.
 4. Confirm whether received documents may be used internally and whether they may be redistributed publicly. These are separate permissions.
-5. Build PDF/text extraction and cleaning.
+5. Build text loading and cleaning.
 6. Use OCR only when the source is scanned and text extraction is insufficient.
 7. Preserve page numbers, headings, source title, dates, and other metadata needed for citations.
 8. Coordinate chunking requirements and metadata with Isaac.
@@ -184,7 +184,7 @@ Every member must complete these shared exercises:
 
 Suggested mini-workshops:
 - Jerlyn: Ollama, model selection, Modelfile, Python client.
-- Isaac: source preparation, PDF extraction, metadata, chunking.
+- Isaac: source preparation, text cleaning, metadata, chunking.
 - Theo: embeddings, vector databases, retrieval, guardrails.
 - Karl: API integration, frontend request/response handling.
 - Team Leader: architecture, evaluation, integration, and defense.
@@ -260,7 +260,7 @@ Create one issue per task and assign an owner:
 3. Agree API request/response contract — Team Leader, Karl, Isaac.
 4. Verify CEPMO online reference and document permission status — Theo.
 5. Complete source register — Theo.
-6. Implement PDF/text loader with metadata — Theo.
+6. Implement text loader with metadata — Theo.
 7. Implement chunking and metadata preservation — Theo, Isaac.
 8. Set up ChromaDB and embeddings — Isaac.
 9. Implement top-k retrieval with source metadata — Isaac.

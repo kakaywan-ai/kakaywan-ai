@@ -8,17 +8,17 @@
 - Permission to use a document for the project is not automatically permission to redistribute it publicly. Verify both separately.
 - Preserve source title, page, section, and date metadata so answers can cite their evidence.
 
-## Local PDF setup
+## Local text setup
 
-Place the approved PDF at `data/processed.pdf`. Then install Ollama, pull the chat
-and embedding models, copy `.env.example` to `.env`, and ingest the PDF:
+Place the approved cleaned text at `data/processed.txt`. Then install Ollama, pull the chat
+and embedding models, copy `.env.example` to `.env`, and ingest the text:
 
 ```powershell
 ollama pull gemma3:1b
 ollama pull nomic-embed-text
-python -m ingest.pdf_ingest
+python -m ingest.txt_ingest
 python -m uvicorn api.main:app --reload
 ```
 
-Open `http://127.0.0.1:8000`. The API starts and also ingests the PDF automatically
+Open `http://127.0.0.1:8000`. The API starts and also ingests the text automatically
 when the Chroma database is empty. Confirm the source is approved before ingesting it.

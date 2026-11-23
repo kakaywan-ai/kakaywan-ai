@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 import uuid
 from pathlib import Path
 from typing import Iterable
+from urllib.request import Request, urlopen
 
 import chromadb
 from dotenv import load_dotenv
-from pypdf import PdfReader
 
 ROOT = Path(__file__).resolve().parents[1]
 load_dotenv(ROOT / ".env")
@@ -33,13 +34,10 @@ def chunk_text(text: str, chunk_size: int, overlap: int) -> Iterable[str]:
             break
 
 
-def ollama_embed(text: str) -> list[float]:
-    import json
-    from urllib.request import Request, urlopen
-
+def ollama_embed(texts: list[str]) -> list[list[float]]:
     host = os.getenv("OLLAMA_HOST", "http://127.0.0.1:11434").rstrip("/")
     model = os.getenv("EMBED_MODEL", "nomic-embed-text")
-    payload = json.dumps({"model": model, "input": text}).encode("utf-8")
+    payload = json.dumps({"model": model, "input": texts}).encode("utf-8")
     request = Request(
         f"{host}/api/embed",
         data=payload,
@@ -49,43 +47,46 @@ def ollama_embed(text: str) -> list[float]:
     with urlopen(request, timeout=120) as response:
         result = json.load(response)
     embeddings = result.get("embeddings")
-    if embeddings:
-        return embeddings[0]
-    raise RuntimeError("Ollama returned no embedding")
+    if embeddings and len(embeddings) == len(texts):
+        return embeddings
+    raise RuntimeError("Ollama returned an unexpected embedding response")
 
 
-def ingest_pdf(pdf_path: Path) -> int:
-    if not pdf_path.is_file():
+def ingest_txt(txt_path: Path) -> int:
+    if not txt_path.is_file():
         raise FileNotFoundError(
-            f"PDF not found: {pdf_path}. Place it at data{os.sep}processed.pdf"
+            f"Text file not found: {txt_path}. Place it at data{os.sep}processed.txt"
         )
 
-    reader = PdfReader(str(pdf_path))
+    text = clean_text(txt_path.read_text(encoding="utf-8"))
+    if not text:
+        raise RuntimeError("The text file is empty")
+
     chunk_size = int(os.getenv("CHUNK_SIZE", "1200"))
     overlap = int(os.getenv("CHUNK_OVERLAP", "200"))
-    chunks: list[str] = []
-    metadatas: list[dict] = []
-    ids: list[str] = []
-
-    for page_number, page in enumerate(reader.pages, start=1):
-        page_text = clean_text(page.extract_text() or "")
-        if not page_text:
-            continue
-        for chunk_index, chunk in enumerate(chunk_text(page_text, chunk_size, overlap)):
-            chunks.append(chunk)
-            metadatas.append(
-                {
-                    "document": pdf_path.name,
-                    "title": pdf_path.stem,
-                    "page": page_number,
-                    "section": "",
-                    "source_path": str(pdf_path),
-                }
-            )
-            ids.append(str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{pdf_path}:{page_number}:{chunk_index}:{chunk[:100]}")))
-
+    chunks = list(chunk_text(text, chunk_size, overlap))
     if not chunks:
-        raise RuntimeError("The PDF contained no extractable text")
+        raise RuntimeError("The text file contained no usable chunks")
+
+    metadatas = [
+        {
+            "document": txt_path.name,
+            "title": txt_path.stem,
+            "page": None,
+            "section": "",
+            "source_path": str(txt_path),
+        }
+        for _ in chunks
+    ]
+    ids = [
+        str(
+            uuid.uuid5(
+                uuid.NAMESPACE_DNS,
+                f"{txt_path}:{chunk_index}:{chunk[:100]}",
+            )
+        )
+        for chunk_index, chunk in enumerate(chunks)
+    ]
 
     chroma_dir = Path(os.getenv("CHROMA_DIR", str(ROOT / "chroma_db")))
     if not chroma_dir.is_absolute():
@@ -97,9 +98,13 @@ def ingest_pdf(pdf_path: Path) -> int:
         "kordi_documents",
         metadata={"hnsw:space": "cosine"},
     )
-    collection.delete(where={"document": pdf_path.name})
+    collection.delete(where={"document": txt_path.name})
 
-    embeddings = [ollama_embed(chunk) for chunk in chunks]
+    batch_size = max(1, int(os.getenv("EMBED_BATCH_SIZE", "32")))
+    embeddings: list[list[float]] = []
+    for start in range(0, len(chunks), batch_size):
+        embeddings.extend(ollama_embed(chunks[start : start + batch_size]))
+
     collection.add(
         ids=ids,
         embeddings=embeddings,
@@ -110,20 +115,20 @@ def ingest_pdf(pdf_path: Path) -> int:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Ingest the Kordi PDF into ChromaDB")
+    parser = argparse.ArgumentParser(description="Ingest a text file into ChromaDB")
     parser.add_argument(
-        "pdf",
+        "text",
         nargs="?",
-        default=os.getenv("PDF_PATH", str(ROOT / "data" / "processed.pdf")),
-        help="PDF path (default: data/processed.pdf)",
+        default=os.getenv("TXT_PATH", str(ROOT / "data" / "processed.txt")),
+        help="Text file path (default: data/processed.txt)",
     )
     args = parser.parse_args()
     try:
-        count = ingest_pdf(Path(args.pdf))
+        count = ingest_txt(Path(args.text))
     except Exception as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         raise SystemExit(1)
-    print(f"Ingested {count} chunks from {args.pdf}")
+    print(f"Ingested {count} chunks from {args.text}")
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from ingest.pdf_ingest import ingest_pdf
+from ingest.txt_ingest import ingest_txt
 from rag.pipeline import chat
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,10 +24,10 @@ class ChatRequest(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    pdf_path = Path(os.getenv("PDF_PATH", str(ROOT / "data" / "processed.pdf")))
-    if not pdf_path.is_absolute():
-        pdf_path = ROOT / pdf_path
-    if pdf_path.is_file():
+    txt_path = Path(os.getenv("TXT_PATH", str(ROOT / "data" / "processed.txt")))
+    if not txt_path.is_absolute():
+        txt_path = ROOT / txt_path
+    if txt_path.is_file():
         chroma_dir = Path(os.getenv("CHROMA_DIR", str(ROOT / "chroma_db")))
         if not chroma_dir.is_absolute():
             chroma_dir = ROOT / chroma_dir
@@ -36,7 +36,7 @@ async def lifespan(app: FastAPI):
         collection = client.get_or_create_collection("kordi_documents")
         if collection.count() == 0:
             try:
-                ingest_pdf(pdf_path)
+                ingest_txt(txt_path)
             except Exception as exc:
                 app.state.ingest_error = str(exc)
     yield
