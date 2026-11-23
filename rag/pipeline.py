@@ -1,3 +1,4 @@
+
 """Question -> retrieve -> sufficiency check -> Ollama -> answer + sources.
 
 `grounded` is decided HERE (backend), never copied from model text.
@@ -34,23 +35,47 @@ def _clean(text: str) -> str:
     return text.replace("<context>", "").replace("</context>", "")
 
 
-def build_user_prompt(question: str, hits: list[Hit], mode: str | None = None) -> str:
-    audience = {"local": "a Baguio resident", "tourist": "a visitor to Baguio"}.get(mode or "", "a member of the public")
+def build_user_prompt(
+    question: str,
+    hits: list[Hit],
+    mode: str | None = None
+) -> str:
+    audience = {
+        "local": "a Baguio resident",
+        "tourist": "a visitor to Baguio"
+    }.get(mode or "", "a member of the public")
+
     blocks = []
+
     for i, h in enumerate(hits, 1):
-        label = h.document + (f", page {h.page}" if h.page else "") + (f", {h.section}" if h.section else "")
+        label = (
+            h.document
+            + (f", page {h.page}" if h.page else "")
+            + (f", {h.section}" if h.section else "")
+        )
         blocks.append(f"[{i}] ({label})\n{_clean(h.text)}")
-    return (f"The person asking is {audience}.\n\n<context>\n" + "\n\n".join(blocks)
-            + f"\n</context>\n\nQuestion: {_clean(question)}")
+
+    return (
+        f"The person asking is {audience}.\n\n<context>\n"
+        + "\n\n".join(blocks)
+        + f"\n</context>\n\nQuestion: {_clean(question)}"
+    )
 
 
 def _sources(hits: list[Hit]) -> list[dict]:
     seen, out = set(), []
+
     for h in hits:
         key = (h.document, h.page, h.section)
+
         if key not in seen:
             seen.add(key)
-            out.append({"document": h.document, "page": h.page, "section": h.section})
+            out.append({
+                "document": h.document,
+                "page": h.page,
+                "section": h.section
+            })
+
     return out
 
 
@@ -58,13 +83,27 @@ class KordiPipeline:
     def __init__(self, retriever, llm, min_similarity: float | None = None):
         self.retriever = retriever
         self.llm = llm
-        self.min_similarity = config.MIN_SIMILARITY if min_similarity is None else min_similarity
+        self.min_similarity = (
+            config.MIN_SIMILARITY
+            if min_similarity is None
+            else min_similarity
+        )
 
     def ask(self, question: str, mode: str | None = None) -> ChatResult:
-        evidence = [h for h in self.retriever.retrieve(question) if h.score >= self.min_similarity]
-        if not evidence:  # weak/missing evidence: do not even call the model
+        evidence = [
+            h for h in self.retriever.retrieve(question)
+            if h.score >= self.min_similarity
+        ]
+
+        if not evidence:
             return ChatResult(FALLBACK)
-        reply = self.llm.chat(SYSTEM_PROMPT, build_user_prompt(question, evidence, mode)).strip()
+
+        reply = self.llm.chat(
+            SYSTEM_PROMPT,
+            build_user_prompt(question, evidence, mode)
+        ).strip()
+
         if not reply or NO_ANSWER in reply:
             return ChatResult(FALLBACK)
+
         return ChatResult(reply, _sources(evidence), True)

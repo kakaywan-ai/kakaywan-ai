@@ -1,4 +1,5 @@
-"""FastAPI app. Run from the repo root:  uvicorn api.main:app --reload"""
+
+"""FastAPI app. Run from the repo root: uvicorn api.main:app --reload"""
 from __future__ import annotations
 
 from functools import lru_cache
@@ -20,7 +21,10 @@ app = FastAPI(title="Kordi API", version="0.5")
 
 class ChatRequest(BaseModel):
     message: str = Field(..., max_length=config.MAX_MESSAGE_CHARS)
-    mode: Optional[str] = Field(None, description="optional: 'local' or 'tourist' (proposed field)")
+    mode: Optional[str] = Field(
+        None,
+        description="Optional: 'local' or 'tourist'"
+    )
 
     @field_validator("message")
     @classmethod
@@ -63,7 +67,12 @@ def chat(req: ChatRequest, pipeline: KordiPipeline = Depends(get_pipeline)):
         result = pipeline.ask(req.message, req.mode)
     except OllamaUnavailable as e:
         raise HTTPException(status_code=503, detail=str(e))
-    return ChatResponse(answer=result.answer, sources=result.sources, grounded=result.grounded)
+
+    return ChatResponse(
+        answer=result.answer,
+        sources=result.sources,
+        grounded=result.grounded
+    )
 
 
 @app.get("/api/health")
@@ -73,6 +82,12 @@ def health():
     return info
 
 
+# Serve the frontend prototype after registering API routes.
 _frontend = Path(__file__).resolve().parent.parent / "frontend" / "prototype"
+
 if _frontend.is_dir():
-    app.mount("/", StaticFiles(directory=_frontend, html=True), name="frontend")
+    app.mount(
+        "/",
+        StaticFiles(directory=_frontend, html=True),
+        name="frontend"
+    )
