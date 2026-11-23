@@ -1,226 +1,865 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Kordi: Baguio Eco Forest (Prototype)</title>
-<style>
-:root{--fog:#E4EBE6;--mist:#F3F6F3;--pine:#1F4E3D;--deep:#12302A;--cone:#8A5A3C;--lamp:#E9B949;--ink:#16231E;--card:#FFFFFF;--line:#B9C8BF;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--fog:#0F1C18;--mist:#14251F;--pine:#7FBF9F;--deep:#CFE6D9;--cone:#D2A07F;--lamp:#E9B949;--ink:#E4EEE8;--card:#1B2E27;--line:#2F4A40;color-scheme:dark}}
-*{box-sizing:border-box}
-html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;min-height:100%;background:linear-gradient(var(--mist),var(--fog));color:var(--ink);font:16px/1.5 "Trebuchet MS",Verdana,sans-serif}
-header{max-width:960px;margin:0 auto;padding:20px 16px 8px}
-h1{font:700 clamp(26px,5vw,40px)/1.1 Georgia,"Times New Roman",serif;color:var(--deep);margin:0 0 6px}
-header p{margin:0;max-width:60ch;color:var(--ink)}
-.mode{display:inline-flex;margin-top:14px;border:2px solid var(--pine);border-radius:999px;overflow:hidden}
-.mode button{border:0;background:transparent;color:var(--pine);padding:9px 18px;font:inherit;font-weight:700;cursor:pointer}
-.mode button[aria-pressed="true"]{background:var(--pine);color:var(--mist)}
-main{max-width:960px;margin:0 auto;padding:0 16px 40px}
-.stage{position:relative;margin-top:10px;border-radius:18px;background:radial-gradient(ellipse at 50% 0,var(--card),transparent 70%);min-height:230px}
-.bubbles{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding:14px 8px 4px;min-height:120px;align-content:flex-end}
-.hint{width:100%;text-align:center;color:var(--pine);font-style:italic;align-self:center}
-.bubble{border:2px solid var(--pine);background:var(--card);color:var(--ink);border-radius:22px 22px 22px 6px;padding:9px 14px;font:inherit;font-size:15px;cursor:pointer;max-width:290px;text-align:left;animation:pop .45s cubic-bezier(.3,1.5,.5,1) both;animation-delay:calc(var(--i)*70ms)}
-.bubble:hover,.bubble:focus-visible{background:var(--pine);color:var(--mist);outline:3px solid var(--lamp);outline-offset:2px}
-@keyframes pop{from{transform:translate(var(--dx,0),90px) scale(.2);opacity:0}to{transform:none;opacity:1}}
-.forest{display:flex;justify-content:space-around;align-items:flex-end;gap:4px;border-bottom:6px solid var(--pine);padding:0 4px;position:relative}
-.forest::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:60px;background:linear-gradient(transparent,var(--fog));pointer-events:none;opacity:.6}
-.tree{background:none;border:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;padding:0 2px;color:var(--ink);font:inherit;flex:1;min-width:0}
-.tree svg{width:100%;max-width:130px;height:auto;transition:transform .25s}
-.tree .tier{fill:var(--pine)}.tree .trunk{fill:var(--cone)}
-.tree:nth-child(even) .tier{fill:#2D6A52}
-.tree:hover svg,.tree:focus-visible svg{transform:scale(1.05)}
-.tree[aria-pressed="true"] svg{transform:scale(1.12)}
-.tree[aria-pressed="true"] .tier{fill:var(--lamp)}
-.tree:focus-visible{outline:3px solid var(--lamp);outline-offset:2px;border-radius:8px}
-.tree span{font-size:13px;font-weight:700;margin:4px 0 10px;text-align:center;line-height:1.2}
-.ask{display:flex;gap:8px;margin-top:22px}
-.ask input{flex:1;min-width:0;padding:12px 14px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit}
-.ask input:focus{outline:3px solid var(--lamp);border-color:var(--pine)}
-.ask button{border:0;background:var(--pine);color:var(--mist);border-radius:12px;padding:0 20px;font:inherit;font-weight:700;cursor:pointer}
-.answer{margin-top:16px;background:var(--card);border:2px solid var(--line);border-left:8px solid var(--pine);border-radius:12px;padding:16px 18px}
-.answer[hidden]{display:none}
-.answer .q{font:700 18px/1.3 Georgia,serif;color:var(--deep);margin:0 0 8px}
-.answer p{margin:0 0 10px}
-.chip{display:inline-block;background:var(--mist);border:1px solid var(--pine);color:var(--pine);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:700}
-.answer.miss{border-left-color:var(--cone)}
-.note{margin-top:22px;font-size:13px;color:var(--ink);opacity:.8;max-width:70ch}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-@media (max-width:560px){.tree span{font-size:11px}.bubble{font-size:14px}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#090B0A">
+  <title>Kordi | Kakaywan</title>
+  <style>
+    :root {
+      --black: #090B0A;
+      --forest-black: #111814;
+      --forest: #1B3021;
+      --leaf: #B6F36B;
+      --off-white: #F1F3EF;
+      --gray: #A7AEA8;
+      --line: rgba(241, 243, 239, .11);
+      --surface: #151C17;
+      --surface-2: #1A231D;
+      --danger: #E9A88F;
+      --sidebar: 264px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; }
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: var(--black);
+      color: var(--off-white);
+      font: 15px/1.5 Inter, "Segoe UI", system-ui, sans-serif;
+    }
+    button, input, textarea { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, textarea:focus-visible, input:focus-visible {
+      outline: 2px solid var(--leaf);
+      outline-offset: 3px;
+    }
+
+    .app { display: grid; grid-template-columns: 56px minmax(0, 1fr); height: 100dvh; }
+    .app.sidebar-expanded { grid-template-columns: var(--sidebar) minmax(0, 1fr); }
+    .sidebar {
+      position: relative;
+      z-index: 30;
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      background: var(--forest-black);
+      border-right: 1px solid var(--line);
+      transition: width .25s ease, transform .25s ease;
+    }
+    .app:not(.sidebar-expanded) .sidebar { width: 56px; }
+    .app.sidebar-expanded .sidebar { width: var(--sidebar); }
+    .sidebar-head {
+      height: 68px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(182, 243, 107, .28);
+      border-radius: 50%;
+      color: var(--leaf);
+      background: #0D140F;
+    }
+    .brand-name { font-family: Georgia, serif; font-size: 18px; font-weight: 700; white-space: nowrap; }
+    .icon-btn, .nav-item {
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 8px;
+    }
+    .icon-btn:hover { background: rgba(241, 243, 239, .07); }
+    .expand-btn { margin-left: auto; }
+    .app:not(.sidebar-expanded) .brand-name,
+    .app:not(.sidebar-expanded) .nav-label,
+    .app:not(.sidebar-expanded) .history-section,
+    .app:not(.sidebar-expanded) .sidebar-footer { display: none; }
+    .app:not(.sidebar-expanded) .sidebar-head { justify-content: center; }
+    .app:not(.sidebar-expanded) .sidebar-head .brand-mark { display: none; }
+    .app:not(.sidebar-expanded) .sidebar-head .expand-btn { margin-left: 0; }
+
+    .sidebar-nav { padding: 12px 8px; display: grid; gap: 4px; }
+    .nav-item {
+      width: 100%;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      text-align: left;
+    }
+    .nav-item:hover, .nav-item.active { background: var(--surface-2); }
+    .nav-item.active { box-shadow: inset 3px 0 var(--leaf); }
+    .nav-icon { width: 18px; height: 18px; flex: 0 0 18px; }
+    .history-section { min-height: 0; flex: 1; display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+    .history-title { padding: 14px 18px 8px; color: var(--gray); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+    .history-list { overflow-y: auto; padding: 0 8px 10px; }
+    .history-item {
+      width: 100%;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      padding: 9px 10px;
+      text-align: left;
+      color: var(--gray);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .history-item:hover, .history-item.active { background: var(--surface-2); color: var(--off-white); }
+    .sidebar-footer { margin-top: auto; padding: 10px 12px 14px; border-top: 1px solid var(--line); }
+    .footer-mark { display: flex; align-items: center; gap: 10px; color: var(--gray); font-size: 12px; }
+
+    .main { min-width: 0; height: 100dvh; position: relative; overflow: hidden; }
+    .mobile-head, .backdrop { display: none; }
+
+    .landing {
+      height: 100%;
+      display: grid;
+      grid-template-rows: auto minmax(280px, 1fr) auto;
+      padding: 34px 46px 24px;
+      background:
+        radial-gradient(circle at 50% 58%, rgba(182, 243, 107, .055), transparent 24%),
+        linear-gradient(145deg, var(--black), #0C110E);
+    }
+    .landing-head { max-width: 620px; margin: 0 auto; text-align: center; }
+    .landing-head h1 { margin: 0; font: 700 clamp(25px, 3vw, 38px)/1.12 Georgia, serif; letter-spacing: -.02em; }
+    .landing-head p { margin: 10px auto 0; color: var(--gray); max-width: 540px; }
+    .mode {
+      display: inline-flex;
+      gap: 3px;
+      margin-top: 18px;
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(17, 24, 20, .86);
+    }
+    .mode button {
+      min-height: 34px;
+      border: 0;
+      border-radius: 999px;
+      padding: 5px 13px;
+      background: transparent;
+      color: var(--gray);
+      cursor: pointer;
+    }
+    .mode button[aria-pressed="true"] { background: var(--forest); color: var(--off-white); }
+
+    .stage { position: relative; min-height: 280px; display: flex; align-items: flex-end; justify-content: center; }
+    .forest {
+      width: min(780px, 92%);
+      height: 236px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: clamp(4px, 2.5vw, 28px);
+      border-bottom: 1px solid rgba(182, 243, 107, .16);
+    }
+    .tree {
+      position: relative;
+      width: 18%;
+      max-width: 142px;
+      height: 210px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      color: var(--gray);
+      transition: transform .2s ease, color .2s ease;
+    }
+    .tree:nth-child(1) { transform: translateY(-8px) scale(.94); }
+    .tree:nth-child(2) { transform: translateY(4px) scale(.86); }
+    .tree:nth-child(3) { transform: translateY(-2px) scale(1.08); }
+    .tree:nth-child(4) { transform: translateY(7px) scale(.9); }
+    .tree:nth-child(5) { transform: translateY(-5px) scale(.96); }
+    .tree:hover, .tree:focus-visible, .tree[aria-pressed="true"] { color: var(--off-white); }
+    .tree:hover svg, .tree:focus-visible svg { transform: translateY(-5px); filter: drop-shadow(0 8px 18px rgba(182, 243, 107, .12)); }
+    .tree[aria-pressed="true"] svg { filter: drop-shadow(0 10px 24px rgba(182, 243, 107, .18)); }
+    .tree svg { width: 100%; max-height: 170px; overflow: visible; transition: transform .24s ease, filter .24s ease; }
+    .tree .crown { fill: #31583B; }
+    .tree:nth-child(2n) .crown { fill: #3D6848; }
+    .tree[aria-pressed="true"] .crown { fill: #668D50; }
+    .tree .trunk { fill: #66503D; }
+    .tree span { margin: 4px 0 10px; min-height: 38px; font-size: 12px; font-weight: 700; line-height: 1.25; text-align: center; }
+
+    .topic-panel {
+      position: absolute;
+      left: 50%;
+      bottom: 194px;
+      width: min(680px, calc(100% - 40px));
+      transform: translateX(-50%);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      z-index: 5;
+    }
+    .topic-hint { width: 100%; text-align: center; color: var(--gray); font-size: 12px; }
+    .bubble {
+      max-width: 280px;
+      border: 1px solid rgba(182, 243, 107, .22);
+      border-radius: 999px;
+      background: rgba(17, 24, 20, .96);
+      padding: 9px 13px;
+      color: var(--off-white);
+      cursor: pointer;
+      text-align: left;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+      animation: bubble-in .22s ease both;
+    }
+    .bubble:hover { border-color: var(--leaf); background: var(--forest); }
+    @keyframes bubble-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    .composer-wrap { width: min(760px, 92%); margin: 0 auto; align-self: end; }
+    .composer {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      min-height: 58px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      box-shadow: 0 12px 34px rgba(0, 0, 0, .22);
+    }
+    .composer:focus-within { border-color: rgba(182, 243, 107, .42); }
+    .composer textarea {
+      width: 100%;
+      min-height: 40px;
+      max-height: 160px;
+      resize: none;
+      overflow-y: auto;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--off-white);
+      padding: 9px 8px 7px;
+      line-height: 21px;
+    }
+    .composer textarea::placeholder { color: #7F877F; }
+    .send-btn {
+      width: 42px;
+      height: 42px;
+      flex: 0 0 42px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 10px;
+      background: var(--leaf);
+      color: #10200F;
+      cursor: pointer;
+    }
+    .send-btn:disabled { cursor: default; opacity: .38; }
+
+    .chat { display: none; height: 100%; background: var(--black); grid-template-rows: 68px minmax(0, 1fr) auto; }
+    .chat.active { display: grid; }
+    .landing.hidden { display: none; }
+    .conversation-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 26px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(9, 11, 10, .96);
+    }
+    .conversation-head h2 { margin: 0; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--leaf); box-shadow: 0 0 10px rgba(182, 243, 107, .35); }
+    .messages { overflow-y: auto; padding: 26px max(24px, calc((100% - 820px) / 2)); scroll-behavior: smooth; }
+    .message-row { display: flex; margin: 0 0 24px; }
+    .message-row.user { justify-content: flex-end; }
+    .message { max-width: 720px; }
+    .message-row.user .message { max-width: 620px; }
+    .message-meta { margin: 0 0 7px; color: var(--gray); font-size: 12px; }
+    .message-row.user .message-meta { text-align: right; }
+    .bubble-message {
+      padding: 10px 14px;
+      border-radius: 12px 12px 12px 3px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .message-row.user .bubble-message { border-radius: 12px 12px 3px 12px; background: var(--forest); border-color: rgba(182, 243, 107, .12); }
+    .answer-tools { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .grounding {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--leaf);
+      font-size: 12px;
+    }
+    .grounding.missing { color: var(--danger); }
+    .reply-btn, .source-toggle {
+      border: 0;
+      background: transparent;
+      color: var(--gray);
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .sources { margin-top: 8px; }
+    .source-list { display: grid; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+    .source-item { padding: 8px 10px; border-left: 2px solid rgba(182, 243, 107, .38); background: var(--surface); color: var(--gray); font-size: 12px; }
+    .loading { display: inline-flex; align-items: center; gap: 8px; color: var(--gray); }
+    .dots span { display: inline-block; width: 5px; height: 5px; margin: 0 1px; border-radius: 50%; background: var(--leaf); animation: dot 1s infinite alternate; }
+    .dots span:nth-child(2) { animation-delay: .2s; }
+    .dots span:nth-child(3) { animation-delay: .4s; }
+    @keyframes dot { from { opacity: .25; transform: translateY(2px); } to { opacity: 1; transform: none; } }
+    .chat-composer { padding: 12px max(24px, calc((100% - 820px) / 2)) 18px; }
+    .chat-composer .composer-wrap { width: 100%; }
+
+    .search-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      place-items: start center;
+      padding-top: 12vh;
+      background: rgba(9, 11, 10, .72);
+      backdrop-filter: blur(8px);
+    }
+    .search-overlay.open { display: grid; }
+    .search-dialog { width: min(620px, calc(100% - 32px)); border: 1px solid var(--line); border-radius: 12px; background: var(--forest-black); box-shadow: 0 24px 70px rgba(0, 0, 0, .48); }
+    .search-field { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+    .search-field input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--off-white); }
+    .search-results { max-height: 430px; overflow-y: auto; padding: 8px; }
+    .search-result { width: 100%; border: 0; border-radius: 8px; background: transparent; cursor: pointer; padding: 10px; text-align: left; }
+    .search-result:hover { background: var(--surface-2); }
+    .search-result strong, .search-result span { display: block; }
+    .search-result span { margin-top: 3px; color: var(--gray); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .search-empty { padding: 24px; text-align: center; color: var(--gray); }
+
+    @media (max-width: 860px) {
+      .app, .app.sidebar-expanded { grid-template-columns: 56px minmax(0, 1fr); }
+      .landing { padding: 28px 20px 18px; }
+      .forest { width: 100%; gap: 2px; }
+      .tree { width: 19%; }
+    }
+    @media (max-width: 640px) {
+      .app, .app.sidebar-expanded { display: block; }
+      .sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: var(--sidebar) !important;
+        transform: translateX(-100%);
+        box-shadow: 18px 0 50px rgba(0,0,0,.38);
+      }
+      .app.mobile-sidebar-open .sidebar { transform: translateX(0); }
+      .app.mobile-sidebar-open .backdrop { display: block; position: fixed; inset: 0; z-index: 25; border: 0; background: rgba(0,0,0,.48); }
+      .app:not(.sidebar-expanded) .brand-name,
+      .app:not(.sidebar-expanded) .nav-label,
+      .app:not(.sidebar-expanded) .history-section,
+      .app:not(.sidebar-expanded) .sidebar-head .expand-btn,
+      .app:not(.sidebar-expanded) .sidebar-footer { display: initial; }
+      .mobile-head { display: flex; position: absolute; top: 10px; left: 10px; z-index: 12; }
+      .conversation-head { padding-left: 58px; }
+      .landing { grid-template-rows: auto minmax(250px, 1fr) auto; padding: 56px 12px 12px; }
+      .landing-head h1 { font-size: 24px; }
+      .landing-head p { font-size: 13px; padding: 0 8px; }
+      .mode { margin-top: 12px; }
+      .forest { height: 205px; }
+      .tree { height: 190px; }
+      .tree svg { max-height: 145px; }
+      .tree span { min-height: 32px; font-size: 10px; }
+      .topic-panel { bottom: 176px; width: calc(100% - 16px); }
+      .bubble { max-width: 210px; font-size: 12px; }
+      .composer-wrap { width: 100%; }
+      .messages { padding: 18px 14px; }
+      .chat-composer { padding: 10px 10px 12px; }
+      .conversation-head h2 { max-width: calc(100% - 110px); }
+    }
+    @media (max-height: 650px) and (min-width: 641px) {
+      .landing { padding-top: 18px; }
+      .landing-head p { display: none; }
+      .mode { margin-top: 10px; }
+      .forest { height: 190px; }
+      .tree { height: 180px; }
+      .stage { min-height: 220px; }
+      .topic-panel { bottom: 172px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+  </style>
 </head>
 <body>
-<header>
-<h1>Kordi, your guide to a greener Baguio</h1>
-<p>Pick a tree, then pick a question. Every answer will come from official documents, and Kordi tells you when it does not know.</p>
-<div class="mode" role="group" aria-label="Who is asking?">
-<button id="mLocal" aria-pressed="true">I live here</button>
-<button id="mTourist" aria-pressed="false">I'm visiting</button>
-</div>
-</header>
-<main>
-<div class="stage">
-<div class="bubbles" id="bubbles" aria-live="polite"><div class="hint">Tap a tree to see what people ask about it.</div></div>
-<div class="forest" id="forest"></div>
-</div>
-<form class="ask" id="ask">
-<input id="q" type="text" placeholder="Or type your own question" aria-label="Type your own question">
-<button type="submit">Ask Kordi</button>
-</form>
-<section class="answer" id="answer" hidden aria-live="polite"></section>
-<p class="note">Kordi answers only from the approved documents it has been given and shows the sources it used. If the documents do not cover your question, it will say so. Kordi can make mistakes, so check important details with the issuing office.</p>
-</main>
-<script>
-var TOPICS=[
-{id:"trees",name:"Trees and permits",qs:[
-{q:"How do I apply for a tree cutting permit?",a:"local",t:"Sample answer: this is where Kordi will list the permit steps and requirements, quoted from the official guideline.",s:"Tree cutting permit guidelines"},
-{q:"Can I pick or cut plants in a park?",a:"tourist",t:"Sample answer: this is where Kordi will state the park rule on plants, taken from the park visitor rules.",s:"Park visitor rules"},
-{q:"What is the city doing to protect its trees?",a:"both",t:"Sample answer: this is where Kordi will summarize the urban forest plan.",s:"Urban Forest Management Plan"}]},
-{id:"water",name:"Watersheds",qs:[
-{q:"Why are Baguio's watersheds protected?",a:"both",t:"Sample answer: this is where Kordi will explain watershed protection using the city's educational materials.",s:"Watershed program materials"},
-{q:"How can my barangay help protect the watershed?",a:"local",t:"Sample answer: this is where Kordi will list community actions from the official program guide.",s:"Watershed program materials"}]},
-{id:"parks",name:"Parks",qs:[
-{q:"How does Adopt a Park work?",a:"local",t:"Sample answer: this is where Kordi will explain who can adopt a park and the steps, from the program rules.",s:"Adopt a Park guidelines"},
-{q:"What are the rules in Burnham Park?",a:"tourist",t:"Sample answer: this is where Kordi will list the visitor rules for the park.",s:"Park visitor rules"},
-{q:"Where can I learn about eco tourism in Baguio?",a:"tourist",t:"Sample answer: this is where Kordi will summarize eco tourism guidance from the official documents.",s:"Eco tourism guidelines"}]},
-{id:"waste",name:"Waste",qs:[
-{q:"How do I segregate my waste?",a:"both",t:"Sample answer: this is where Kordi will give the segregation guide from the city's waste documents.",s:"Waste segregation guide"},
-{q:"What are the rules on plastic?",a:"both",t:"Sample answer: this is where Kordi will state the plastic rules from the city ordinance.",s:"City plastic ordinance"},
-{q:"When does garbage collection happen in my barangay?",a:"local",t:"Sample answer: this is where Kordi will show the schedule if an official schedule is loaded.",s:"Barangay collection schedule"}]},
-{id:"air",name:"Clean air",qs:[
-{q:"What does the city do about air pollution?",a:"both",t:"Sample answer: this is where Kordi will describe clean air programs from the official documents.",s:"Clean air program materials"},
-{q:"What are the rules on smoking and vaping in public places?",a:"tourist",t:"Sample answer: this is where Kordi will state the rule as written in the ordinance.",s:"Smoke free ordinance"}]}
-];
-var mode="local",cur=null;
-var forest=document.getElementById("forest"),bub=document.getElementById("bubbles"),ans=document.getElementById("answer");
-function treeSVG(){return '<svg viewBox="0 0 100 130" aria-hidden="true"><polygon class="tier" points="50,4 78,46 22,46"/><polygon class="tier" points="50,24 86,76 14,76"/><polygon class="tier" points="50,48 92,108 8,108"/><rect class="trunk" x="44" y="106" width="12" height="22"/></svg>'}
-TOPICS.forEach(function(t,i){var b=document.createElement("button");b.className="tree";b.setAttribute("aria-pressed","false");b.dataset.id=t.id;b.style.marginBottom=(i%2?"0":"10px");b.innerHTML=treeSVG()+"<span>"+t.name+"</span>";b.onclick=function(){cur=t.id;showBubbles(i)};forest.appendChild(b)});
-function showBubbles(idx){
- [].forEach.call(forest.children,function(c){c.setAttribute("aria-pressed",c.dataset.id===cur?"true":"false")});
- var t=TOPICS.filter(function(x){return x.id===cur})[0];bub.innerHTML="";
- var list=t.qs.filter(function(x){return x.a==="both"||x.a===mode});
- if(!list.length){bub.innerHTML='<div class="hint">No questions here for this group yet.</div>';return}
- var dx=((idx-(TOPICS.length-1)/2)*18)+"%";
- list.forEach(function(x,i){var b=document.createElement("button");b.className="bubble";b.style.setProperty("--i",i);b.style.setProperty("--dx",dx);b.textContent=x.q;b.onclick=function(){ask(x.q)};bub.appendChild(b)});
-}
-function show(x){askAPI(x.q)}
-function setMode(m){mode=m;document.getElementById("mLocal").setAttribute("aria-pressed",m==="local");document.getElementById("mTourist").setAttribute("aria-pressed",m==="tourist");if(cur)showBubbles(TOPICS.map(function(x){return x.id}).indexOf(cur))}
-document.getElementById("mLocal").onclick=function(){setMode("local")};
-document.getElementById("mTourist").onclick=function(){setMode("tourist")};
+  <div class="app" id="app">
+    <aside class="sidebar" aria-label="Primary navigation">
+      <div class="sidebar-head">
+        <div class="brand-mark" aria-hidden="true">K</div>
+        <div class="brand-name">Kakaywan</div>
+        <button class="icon-btn expand-btn" id="collapseBtn" title="Collapse sidebar" aria-label="Collapse sidebar" aria-expanded="true">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+        </button>
+      </div>
+      <nav class="sidebar-nav" aria-label="Chat actions">
+        <button class="nav-item active" id="newChatBtn" title="New chat">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+          <span class="nav-label">New chat</span>
+        </button>
+        <button class="nav-item" id="searchBtn" title="Search conversations">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg>
+          <span class="nav-label">Search</span>
+        </button>
+      </nav>
+      <section class="history-section" aria-label="Recent conversations">
+        <div class="history-title">Recent</div>
+        <div class="history-list" id="historyList"></div>
+      </section>
+      <div class="sidebar-footer">
+        <div class="footer-mark"><span class="status-dot"></span><span>Session conversations only</span></div>
+      </div>
+    </aside>
+    <button class="backdrop" id="backdrop" aria-label="Close sidebar"></button>
 
-document.getElementById("ask").onsubmit = function (e) {
-    e.preventDefault();
+    <main class="main">
+      <button class="icon-btn mobile-head" id="mobileMenu" title="Open sidebar" aria-label="Open sidebar">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      </button>
 
-    var inp = document.getElementById("q");
-    var question = inp.value.trim();
+      <section class="landing" id="landing" aria-label="Choose an environmental topic">
+        <header class="landing-head">
+          <h1>Kordi, your guide to a greener Baguio</h1>
+          <p>Choose an environmental topic or ask Kordi directly. Answers are grounded in approved city records.</p>
+          <div class="mode" role="group" aria-label="Who is asking">
+            <button id="mLocal" aria-pressed="true">I live here</button>
+            <button id="mTourist" aria-pressed="false">I'm visiting</button>
+          </div>
+        </header>
+        <div class="stage">
+          <div class="topic-panel" id="topicPanel">
+            <div class="topic-hint">Choose a tree to explore a topic</div>
+          </div>
+          <div class="forest" id="forest" aria-label="Environmental topics"></div>
+        </div>
+        <div class="composer-wrap">
+          <form class="composer" id="landingForm">
+            <textarea id="landingInput" rows="1" maxlength="4000" placeholder="Ask Kordi about Baguio's environment" aria-label="Ask Kordi"></textarea>
+            <button class="send-btn" type="submit" aria-label="Send question">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 14-7-5 14-2-5-7-2Z"/></svg>
+            </button>
+          </form>
+        </div>
+      </section>
 
-    if (question) {
-        ask(question);
+      <section class="chat" id="chat" aria-label="Conversation">
+        <header class="conversation-head">
+          <span class="status-dot" aria-hidden="true"></span>
+          <h2 id="conversationTitle">New conversation</h2>
+        </header>
+        <div class="messages" id="messages" aria-live="polite"></div>
+        <div class="chat-composer">
+          <div class="composer-wrap">
+            <form class="composer" id="chatForm">
+              <textarea id="chatInput" rows="1" maxlength="4000" placeholder="Ask another question" aria-label="Ask another question"></textarea>
+              <button class="send-btn" type="submit" aria-label="Send question">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 14-7-5 14-2-5-7-2Z"/></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="search-overlay" id="searchOverlay" role="dialog" aria-modal="true" aria-label="Search conversations">
+    <div class="search-dialog">
+      <div class="search-field">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg>
+        <input id="searchInput" type="search" placeholder="Search this session's conversations" aria-label="Search conversations">
+        <button class="icon-btn" id="closeSearch" aria-label="Close search">×</button>
+      </div>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+  </div>
+
+  <script>
+    const TOPICS = [
+      {id:"trees",name:"Trees and permits",qs:[
+        {q:"How do I apply for a tree cutting permit?",a:"local"},
+        {q:"Can I pick or cut plants in a park?",a:"tourist"},
+        {q:"What is the city doing to protect its trees?",a:"both"}
+      ]},
+      {id:"water",name:"Watersheds",qs:[
+        {q:"Why are Baguio's watersheds protected?",a:"both"},
+        {q:"How can my barangay help protect the watershed?",a:"local"}
+      ]},
+      {id:"parks",name:"Parks",qs:[
+        {q:"How does Adopt a Park work?",a:"local"},
+        {q:"What are the rules in Burnham Park?",a:"tourist"},
+        {q:"Where can I learn about eco tourism in Baguio?",a:"tourist"}
+      ]},
+      {id:"waste",name:"Waste",qs:[
+        {q:"How do I segregate my waste?",a:"both"},
+        {q:"What are the rules on plastic?",a:"both"},
+        {q:"When does garbage collection happen in my barangay?",a:"local"}
+      ]},
+      {id:"air",name:"Clean air",qs:[
+        {q:"What does the city do about air pollution?",a:"both"},
+        {q:"What are the rules on smoking and vaping in public places?",a:"tourist"}
+      ]}
+    ];
+
+    const app = document.getElementById("app");
+    const landing = document.getElementById("landing");
+    const chat = document.getElementById("chat");
+    const forest = document.getElementById("forest");
+    const topicPanel = document.getElementById("topicPanel");
+    const messages = document.getElementById("messages");
+    let mode = "local";
+    let currentTopic = null;
+    let busy = false;
+    let selectedReply = null;
+    let conversations = [];
+    let activeId = null;
+
+    function treeSVG() {
+      return '<svg viewBox="0 0 100 150" aria-hidden="true"><path class="trunk" d="M46 112h8l3 32H43z"/><circle class="crown" cx="50" cy="46" r="34"/><circle class="crown" cx="29" cy="74" r="27"/><circle class="crown" cx="71" cy="74" r="27"/><circle class="crown" cx="50" cy="91" r="32"/></svg>';
     }
-};
 
-var busy = false;
-
-function render(question, body, chips, miss) {
-    ans.hidden = false;
-    ans.className = "answer" + (miss ? " miss" : "");
-
-    ans.innerHTML =
-        '<p class="q"></p><p class="body"></p><div class="chips"></div>';
-
-    ans.children[0].textContent = question;
-    ans.children[1].textContent = body;
-
-    chips.forEach(function (text) {
-        var chip = document.createElement("span");
-        chip.className = "chip";
-        chip.style.marginRight = "6px";
-        chip.textContent = text;
-        ans.children[2].appendChild(chip);
+    TOPICS.forEach(topic => {
+      const button = document.createElement("button");
+      button.className = "tree";
+      button.dataset.id = topic.id;
+      button.setAttribute("aria-pressed", "false");
+      button.innerHTML = treeSVG() + "<span>" + topic.name + "</span>";
+      button.addEventListener("click", () => showTopic(topic.id));
+      forest.appendChild(button);
     });
 
-    ans.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest"
+    function showTopic(id) {
+      currentTopic = id;
+      [...forest.children].forEach(tree => tree.setAttribute("aria-pressed", tree.dataset.id === id ? "true" : "false"));
+      const topic = TOPICS.find(item => item.id === id);
+      const questions = topic.qs.filter(item => item.a === "both" || item.a === mode);
+      topicPanel.innerHTML = "";
+      if (!questions.length) {
+        topicPanel.innerHTML = '<div class="topic-hint">No topic questions match this mode yet.</div>';
+        return;
+      }
+      questions.forEach((item, index) => {
+        const button = document.createElement("button");
+        button.className = "bubble";
+        button.style.animationDelay = (index * 45) + "ms";
+        button.textContent = item.q;
+        button.addEventListener("click", () => sendQuestion(item.q));
+        topicPanel.appendChild(button);
+      });
+    }
+
+    function setMode(nextMode) {
+      mode = nextMode;
+      document.getElementById("mLocal").setAttribute("aria-pressed", mode === "local");
+      document.getElementById("mTourist").setAttribute("aria-pressed", mode === "tourist");
+      if (currentTopic) showTopic(currentTopic);
+    }
+    document.getElementById("mLocal").addEventListener("click", () => setMode("local"));
+    document.getElementById("mTourist").addEventListener("click", () => setMode("tourist"));
+
+    function setupComposer(textarea) {
+      textarea.addEventListener("input", () => {
+        textarea.style.height = "auto";
+        textarea.style.height = Math.min(textarea.scrollHeight, 160) + "px";
+      });
+      textarea.addEventListener("keydown", event => {
+        if (event.key === "Enter" && !event.shiftKey) {
+          event.preventDefault();
+          textarea.closest("form").requestSubmit();
+        }
+      });
+    }
+    setupComposer(document.getElementById("landingInput"));
+    setupComposer(document.getElementById("chatInput"));
+
+    document.getElementById("landingForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const input = document.getElementById("landingInput");
+      if (input.value.trim()) sendQuestion(input.value.trim());
     });
-}
+    document.getElementById("chatForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const input = document.getElementById("chatInput");
+      if (input.value.trim()) sendQuestion(input.value.trim());
+    });
 
-async function ask(question) {
-    if (busy) return;
+    function createConversation(firstMessage) {
+      const conversation = {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        title: firstMessage.length > 54 ? firstMessage.slice(0, 54) + "…" : firstMessage,
+        messages: []
+      };
+      conversations.unshift(conversation);
+      activeId = conversation.id;
+      renderHistory();
+      return conversation;
+    }
 
-    busy = true;
+    function getConversation() {
+      return conversations.find(item => item.id === activeId);
+    }
 
-    render(
-        question,
-        "Kordi is checking the approved documents...",
-        [],
-        false
-    );
+    function enterChat() {
+      landing.classList.add("hidden");
+      chat.classList.add("active");
+      document.getElementById("chatInput").focus();
+      closeMobileSidebar();
+    }
 
-    try {
-        var response = await fetch("/api/chat", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                message: question,
-                mode: typeof mode !== "undefined" ? mode : null
-            })
+    function newChat() {
+      activeId = null;
+      selectedReply = null;
+      messages.innerHTML = "";
+      document.getElementById("conversationTitle").textContent = "New conversation";
+      chat.classList.remove("active");
+      landing.classList.remove("hidden");
+      document.getElementById("landingInput").value = "";
+      document.getElementById("landingInput").style.height = "auto";
+      renderHistory();
+      closeMobileSidebar();
+    }
+    document.getElementById("newChatBtn").addEventListener("click", newChat);
+
+    function renderHistory() {
+      const list = document.getElementById("historyList");
+      list.innerHTML = "";
+      conversations.forEach(conversation => {
+        const button = document.createElement("button");
+        button.className = "history-item" + (conversation.id === activeId ? " active" : "");
+        button.textContent = conversation.title;
+        button.title = conversation.title;
+        button.addEventListener("click", () => openConversation(conversation.id));
+        list.appendChild(button);
+      });
+    }
+
+    function openConversation(id) {
+      const conversation = conversations.find(item => item.id === id);
+      if (!conversation) return;
+      activeId = id;
+      selectedReply = null;
+      document.getElementById("conversationTitle").textContent = conversation.title;
+      enterChat();
+      renderConversation(conversation);
+      renderHistory();
+    }
+
+    function renderConversation(conversation) {
+      messages.innerHTML = "";
+      conversation.messages.forEach(message => appendMessage(message, false));
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function appendMessage(message, save) {
+      const conversation = getConversation();
+      if (save && conversation) conversation.messages.push(message);
+
+      const row = document.createElement("div");
+      row.className = "message-row " + message.role;
+      const block = document.createElement("div");
+      block.className = "message";
+
+      const meta = document.createElement("div");
+      meta.className = "message-meta";
+      meta.textContent = message.role === "user" ? "You" : "Kordi";
+      block.appendChild(meta);
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble-message";
+      bubble.textContent = message.text;
+      block.appendChild(bubble);
+
+      if (message.role === "assistant") {
+        const tools = document.createElement("div");
+        tools.className = "answer-tools";
+        const grounding = document.createElement("span");
+        grounding.className = "grounding" + (message.grounded ? "" : " missing");
+        grounding.textContent = message.grounded ? "Grounded in approved records" : "Evidence insufficient";
+        tools.appendChild(grounding);
+
+        const reply = document.createElement("button");
+        reply.className = "reply-btn";
+        reply.textContent = "Reply";
+        reply.title = "Reply locally to this response";
+        reply.addEventListener("click", () => {
+          selectedReply = message.id;
+          document.getElementById("chatInput").placeholder = "Reply to this Kordi response";
+          document.getElementById("chatInput").focus();
         });
+        tools.appendChild(reply);
+        block.appendChild(tools);
 
-        var data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(
-                data.detail ||
-                (response.status === 503
-                    ? "Kordi's language model is unavailable. Please check Ollama."
-                    : "Something went wrong (" + response.status + ").")
-            );
+        if (Array.isArray(message.sources) && message.sources.length) {
+          const sources = document.createElement("div");
+          sources.className = "sources";
+          const toggle = document.createElement("button");
+          toggle.className = "source-toggle";
+          toggle.textContent = "Show " + message.sources.length + " source" + (message.sources.length === 1 ? "" : "s");
+          toggle.setAttribute("aria-expanded", "false");
+          const list = document.createElement("ul");
+          list.className = "source-list";
+          list.hidden = true;
+          message.sources.forEach(source => {
+            const item = document.createElement("li");
+            item.className = "source-item";
+            let label = source.document || "Source";
+            if (source.page !== null && source.page !== undefined) label += " · page " + source.page;
+            if (source.section) label += " · " + source.section;
+            item.textContent = label;
+            list.appendChild(item);
+          });
+          toggle.addEventListener("click", () => {
+            list.hidden = !list.hidden;
+            toggle.setAttribute("aria-expanded", String(!list.hidden));
+            toggle.textContent = (list.hidden ? "Show " : "Hide ") + message.sources.length + " source" + (message.sources.length === 1 ? "" : "s");
+          });
+          sources.append(toggle, list);
+          block.appendChild(sources);
         }
+      }
 
-        var sourceChips = [];
-
-        if (data.sources && data.sources.length > 0) {
-            data.sources.forEach(function (source) {
-                var label = source.document || "Source";
-
-                if (source.page) {
-                    label += " - page " + source.page;
-                }
-
-                if (source.section) {
-                    label += " - " + source.section;
-                }
-
-                sourceChips.push(label);
-            });
-        } else {
-            sourceChips.push("No source found");
-        }
-
-        render(
-            question,
-            data.answer,
-            sourceChips,
-            !data.grounded
-        );
-
-    } catch (error) {
-        render(
-            question,
-            error.message || "Could not reach Kordi. Please try again.",
-            ["API connection error"],
-            true
-        );
-
-    } finally {
-        busy = false;
+      row.appendChild(block);
+      messages.appendChild(row);
+      if (message.role === "loading") row.className = "message-row";
+      messages.scrollTop = messages.scrollHeight;
     }
-}
 
-</script>
+    function appendLoading() {
+      const row = document.createElement("div");
+      row.className = "message-row";
+      row.id = "loadingRow";
+      row.innerHTML = '<div class="message"><div class="message-meta">Kordi</div><div class="bubble-message loading">Checking approved records <span class="dots"><span></span><span></span><span></span></span></div></div>';
+      messages.appendChild(row);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    async function sendQuestion(question) {
+      if (busy || !question.trim()) return;
+      busy = true;
+
+      let conversation = getConversation();
+      if (!conversation) conversation = createConversation(question);
+      enterChat();
+      document.getElementById("conversationTitle").textContent = conversation.title;
+      document.getElementById("landingInput").value = "";
+
+      appendMessage({role:"user", text:question, id:crypto.randomUUID ? crypto.randomUUID() : String(Date.now())}, true);
+      appendLoading();
+      renderHistory();
+
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({message: question, mode})
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || "Kordi could not respond (" + response.status + ").");
+        document.getElementById("loadingRow")?.remove();
+        appendMessage({
+          role:"assistant",
+          text:data.answer,
+          grounded:Boolean(data.grounded),
+          sources:Array.isArray(data.sources) ? data.sources : [],
+          id:crypto.randomUUID ? crypto.randomUUID() : String(Date.now())
+        }, true);
+      } catch (error) {
+        document.getElementById("loadingRow")?.remove();
+        appendMessage({
+          role:"assistant",
+          text:error.message || "Could not reach Kordi. Please try again.",
+          grounded:false,
+          sources:[],
+          id:crypto.randomUUID ? crypto.randomUUID() : String(Date.now())
+        }, true);
+      } finally {
+        busy = false;
+        document.getElementById("chatInput").value = "";
+        document.getElementById("chatInput").placeholder = "Ask another question";
+        document.getElementById("chatInput").style.height = "auto";
+        document.getElementById("chatInput").focus();
+      }
+    }
+
+    const collapseBtn = document.getElementById("collapseBtn");
+    collapseBtn.addEventListener("click", () => {
+      if (window.innerWidth <= 640) {
+        closeMobileSidebar();
+      } else {
+        app.classList.toggle("sidebar-expanded");
+        const expanded = app.classList.contains("sidebar-expanded");
+        collapseBtn.setAttribute("aria-expanded", String(expanded));
+        collapseBtn.title = expanded ? "Collapse sidebar" : "Expand sidebar";
+      }
+    });
+    document.getElementById("mobileMenu").addEventListener("click", () => app.classList.add("mobile-sidebar-open"));
+    document.getElementById("backdrop").addEventListener("click", closeMobileSidebar);
+    function closeMobileSidebar() { app.classList.remove("mobile-sidebar-open"); }
+    function setInitialSidebar() {
+      if (window.innerWidth > 640) app.classList.remove("sidebar-expanded");
+      else app.classList.remove("sidebar-expanded", "mobile-sidebar-open");
+    }
+    setInitialSidebar();
+
+    const searchOverlay = document.getElementById("searchOverlay");
+    const searchInput = document.getElementById("searchInput");
+    const searchResults = document.getElementById("searchResults");
+    function openSearch() {
+      searchOverlay.classList.add("open");
+      searchInput.value = "";
+      renderSearch("");
+      closeMobileSidebar();
+      setTimeout(() => searchInput.focus(), 0);
+    }
+    function closeSearch() { searchOverlay.classList.remove("open"); }
+    document.getElementById("searchBtn").addEventListener("click", openSearch);
+    document.getElementById("closeSearch").addEventListener("click", closeSearch);
+    searchOverlay.addEventListener("click", event => { if (event.target === searchOverlay) closeSearch(); });
+    searchInput.addEventListener("input", () => renderSearch(searchInput.value));
+    document.addEventListener("keydown", event => { if (event.key === "Escape") closeSearch(); });
+
+    function renderSearch(query) {
+      const needle = query.trim().toLowerCase();
+      const matches = [];
+      conversations.forEach(conversation => {
+        const titleMatches = conversation.title.toLowerCase().includes(needle);
+        const messageMatches = conversation.messages.filter(item => item.text.toLowerCase().includes(needle));
+        if (!needle || titleMatches || messageMatches.length) {
+          matches.push({conversation, snippet: messageMatches[0]?.text || conversation.title});
+        }
+      });
+      searchResults.innerHTML = "";
+      if (!matches.length) {
+        searchResults.innerHTML = '<div class="search-empty">No matching conversations in this session.</div>';
+        return;
+      }
+      matches.forEach(match => {
+        const button = document.createElement("button");
+        button.className = "search-result";
+        button.innerHTML = "<strong></strong><span></span>";
+        button.children[0].textContent = match.conversation.title;
+        button.children[1].textContent = match.snippet;
+        button.addEventListener("click", () => { closeSearch(); openConversation(match.conversation.id); });
+        searchResults.appendChild(button);
+      });
+    }
+  </script>
 </body>
 </html>
