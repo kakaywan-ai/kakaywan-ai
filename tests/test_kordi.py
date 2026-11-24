@@ -75,6 +75,7 @@ def test_real_chroma_retrieval_returns_metadata(tmp_path):
 def test_insufficient_evidence_skips_model_and_falls_back():
     llm = FakeLLM()
     res = KordiPipeline(StaticRetriever([hit(0.10)]), llm, 0.35).ask("What is the capital of France?")
+    assert FALLBACK == "Kordi is still learning about this topic. Please try another environmental question."
     assert (res.answer, res.sources, res.grounded) == (FALLBACK, [], False)
     assert llm.calls == []
 
