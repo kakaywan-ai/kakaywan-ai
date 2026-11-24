@@ -75,9 +75,19 @@ def test_real_chroma_retrieval_returns_metadata(tmp_path):
 def test_insufficient_evidence_skips_model_and_falls_back():
     llm = FakeLLM()
     res = KordiPipeline(StaticRetriever([hit(0.10)]), llm, 0.35).ask("What is the capital of France?")
-    assert FALLBACK == "Kordi is still learning about this topic. Please try another environmental question."
+    assert FALLBACK == (
+        "I couldn't find supporting information for that in the sources currently "
+        "available. Try rephrasing it or asking about a topic covered by the sources."
+    )
     assert (res.answer, res.sources, res.grounded) == (FALLBACK, [], False)
     assert llm.calls == []
+
+
+def test_default_similarity_threshold_accepts_relevant_lower_score_candidates():
+    llm = FakeLLM()
+    res = KordiPipeline(StaticRetriever([hit(0.30)]), llm).ask("How can I protect the environment?")
+    assert res.grounded is True
+    assert len(llm.calls) == 1
 
 
 def test_model_no_answer_token_falls_back_even_with_evidence():
