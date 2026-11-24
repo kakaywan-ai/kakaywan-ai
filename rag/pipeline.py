@@ -10,7 +10,10 @@ from dataclasses import dataclass, field
 import config
 from rag.retriever import Hit
 
-FALLBACK = "Kordi is still learning about this topic. Please try another environmental question."
+FALLBACK = (
+    "I couldn't find supporting information for that in the sources currently "
+    "available. Try rephrasing it or asking about a topic covered by the sources."
+)
 NO_ANSWER = "[[NO_ANSWER]]"
 
 OFFENSIVE_TERMS = [

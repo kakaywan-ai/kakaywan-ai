@@ -34,7 +34,7 @@ Insufficient evidence response:
 
 ```json
 {
-  "answer": "Kordi is still learning about this topic. Please try another environmental question.",
+  "answer": "I couldn't find supporting information for that in the sources currently available. Try rephrasing it or asking about a topic covered by the sources.",
   "sources": [],
   "grounded": false
 }

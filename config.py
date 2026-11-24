@@ -29,8 +29,8 @@ COLLECTION = os.getenv("CHROMA_COLLECTION", "kakaywan")
 CHUNK_SIZE = _i("CHUNK_SIZE", 800)
 CHUNK_OVERLAP = _i("CHUNK_OVERLAP", 150)
 TOP_K = _i("TOP_K", 4)
-# Cosine similarity a chunk must reach to count as evidence. Tune on the eval set.
-MIN_SIMILARITY = _f("MIN_SIMILARITY", 0.35)
+# Cosine similarity a chunk must reach to be considered by the model.
+MIN_SIMILARITY = _f("MIN_SIMILARITY", 0.25)
 
 MAX_MESSAGE_CHARS = _i("MAX_MESSAGE_CHARS", 500)
 DATA_DIR = os.getenv("DATA_DIR", str(ROOT / "data" / "processed"))
