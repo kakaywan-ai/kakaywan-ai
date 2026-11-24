@@ -177,7 +177,7 @@ Response when evidence is insufficient:
 
 ```json
 {
-  "answer": "Information not available in the current approved records.",
+  "answer": "Kordi is still learning about this topic. Please try another environmental question.",
   "sources": [],
   "grounded": false
 }
