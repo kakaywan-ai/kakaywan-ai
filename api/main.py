@@ -1,4 +1,3 @@
-
 """FastAPI app. Run from the repo root: uvicorn api.main:app --reload"""
 from __future__ import annotations
 
@@ -15,6 +14,7 @@ from llm.ollama_client import OllamaClient, OllamaUnavailable
 from rag.embeddings import Embedder
 from rag.pipeline import KordiPipeline
 from rag.retriever import Retriever, get_collection
+from rag.safety import SafetyGuard
 
 app = FastAPI(title="Kordi API", version="0.5")
 
@@ -58,7 +58,7 @@ def get_retriever() -> Retriever:
 
 
 def get_pipeline() -> KordiPipeline:
-    return KordiPipeline(get_retriever(), get_llm())
+    return KordiPipeline(get_retriever(), get_llm(), guard=SafetyGuard(get_llm()))
 
 
 @app.post("/api/chat", response_model=ChatResponse)

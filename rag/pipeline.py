@@ -1,10 +1,10 @@
-
 """Question -> retrieve -> sufficiency check -> Ollama -> answer + sources.
 
 `grounded` is decided HERE (backend), never copied from model text.
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 
 import config
@@ -12,6 +12,34 @@ from rag.retriever import Hit
 
 FALLBACK = "Information not available in the current approved records."
 NO_ANSWER = "[[NO_ANSWER]]"
+
+OFFENSIVE_TERMS = [
+    # English
+    "fuck", "fucking", "fucker", "shit", "bitch", "asshole", "bastard",
+    "dumbass", "idiot", "stupid", "moron", "dick", "cunt", "slut", "whore",
+    "retard", "retarded", "loser",
+    # Tagalog / Filipino
+    "tangina", "putangina", "putang ina", "tang ina", "puta", "gago", "gaga",
+    "bobo", "tanga", "ulol", "pakyu", "tarantado", "inutil", "hayop ka",
+    "pakshet", "pakshit", "pakingshet", "pucha", "puchang", "punyeta",
+    "leche", "lintik", "buwisit", "bwisit", "siraulo", "kupal", "gunggong",
+    "engot", "pokpok", "animal ka", "hudas", "demonyo ka",
+]
+_OFFENSIVE_RE = re.compile(
+    r"\b(" + "|".join(re.escape(t) for t in OFFENSIVE_TERMS) + r")\b",
+    re.IGNORECASE,
+)
+
+RESPECT_REPLY = (
+    "Let's keep our conversation respectful. I can help with questions about "
+    "Baguio City's environment, parks, trees, waste management, and climate "
+    "action. Please rephrase your question."
+)
+
+
+def is_offensive(text: str) -> bool:
+    return bool(_OFFENSIVE_RE.search(text))
+
 
 SYSTEM_PROMPT = f"""You are Kordi, a friendly guide to Baguio City's environment, waste management, parks, trees, watersheds, and climate action.
 
@@ -21,7 +49,8 @@ Rules:
 3. If the passages do not clearly contain the answer, reply with exactly: {NO_ANSWER}
 4. Do not write citations, page numbers, links, or document titles. The system attaches sources.
 5. Be short, clear, and in plain English (about 150 words at most). Use a short list for steps.
-6. If the question is vague, answer only what the passages support and say what detail is missing."""
+6. If the question is vague, answer only what the passages support and say what detail is missing.
+7. If the user is rude, insulting, harassing, or uses offensive language, do not engage with it. Politely ask them to keep it respectful and offer to help with Baguio City environment topics."""
 
 
 @dataclass
@@ -80,9 +109,10 @@ def _sources(hits: list[Hit]) -> list[dict]:
 
 
 class KordiPipeline:
-    def __init__(self, retriever, llm, min_similarity: float | None = None):
+    def __init__(self, retriever, llm, min_similarity: float | None = None, guard=None):
         self.retriever = retriever
         self.llm = llm
+        self.guard = guard
         self.min_similarity = (
             config.MIN_SIMILARITY
             if min_similarity is None
@@ -90,6 +120,14 @@ class KordiPipeline:
         )
 
     def ask(self, question: str, mode: str | None = None) -> ChatResult:
+        if is_offensive(question):
+            return ChatResult(RESPECT_REPLY)
+
+        if self.guard is not None:
+            blocked = self.guard.check(question)
+            if blocked:
+                return ChatResult(blocked)
+
         evidence = [
             h for h in self.retriever.retrieve(question)
             if h.score >= self.min_similarity
