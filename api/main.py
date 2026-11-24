@@ -84,8 +84,15 @@ def health():
 
 # Serve the frontend prototype after registering API routes.
 _frontend = Path(__file__).resolve().parent.parent / "frontend" / "prototype"
+_assets = Path(__file__).resolve().parent.parent / "frontend" / "assets"
 
 if _frontend.is_dir():
+    if _assets.is_dir():
+        app.mount(
+            "/assets",
+            StaticFiles(directory=_assets),
+            name="frontend-assets"
+        )
     app.mount(
         "/",
         StaticFiles(directory=_frontend, html=True),
