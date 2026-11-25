@@ -1427,8 +1427,6 @@
             const item = document.createElement("li");
             item.className = "source-item";
             let label = source.document || "Source";
-            if (source.page !== null && source.page !== undefined) label += " · page " + source.page;
-            if (source.section) label += " · " + source.section;
             item.textContent = label;
             list.appendChild(item);
           });

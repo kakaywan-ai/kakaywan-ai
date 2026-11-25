@@ -119,7 +119,7 @@ Use the pattern `type/short-description`.
 Examples:
 
 ```bash
-git switch -c feat/pdf-loader
+git switch -c feat/text-ingestion
 git switch -c feat/ollama-client
 git switch -c feat/vector-retrieval
 git switch -c feat/chat-api
@@ -166,7 +166,7 @@ type: short description
 Examples:
 
 ```bash
-git commit -m "feat: add PDF text loader"
+git commit -m "feat: add processed text ingestion"
 git commit -m "feat: implement ChromaDB retrieval"
 git commit -m "fix: handle empty retrieval results"
 git commit -m "docs: explain Ollama setup"
@@ -180,7 +180,7 @@ Use `feat`, `fix`, `docs`, `test`, `refactor`, or `chore`. Keep each commit focu
 For the first push of a branch:
 
 ```bash
-git push -u origin feat/pdf-loader
+git push -u origin feat/text-ingestion
 ```
 
 Replace the branch name with your actual branch. For later pushes to the same branch:
@@ -196,7 +196,7 @@ git push
 1. Open the repository on GitHub.
 2. Select **Compare & pull request** for your pushed branch, or go to **Pull requests → New pull request**.
 3. Set the base branch to `main` and compare branch to your feature branch.
-4. Use a clear title, for example `feat: add PDF text loader`.
+4. Use a clear title, for example `feat: add processed text ingestion`.
 5. Link the issue using `Closes #<issue-number>`.
 6. Complete the pull request template.
 7. Request a reviewer who did not author the change.
@@ -211,7 +211,7 @@ Before continuing work or opening a PR, bring in the latest `main`:
 ```bash
 git switch main
 git pull origin main
-git switch feat/pdf-loader
+git switch feat/text-ingestion
 git merge main
 ```
 

@@ -30,7 +30,7 @@ def main() -> None:
     retriever = Retriever(get_collection(), Embedder())
     print(f"Chunks indexed: {retriever.count()} | threshold: {args.min} | top_k: {retriever.top_k}\n")
     if retriever.count() == 0:
-        print("Index is empty. Run: python -m ingest.ingest --source data/processed --reset")
+        print("Index is empty. Run: python -m ingest.ingest --source data/processed.txt --reset")
         return
 
     pipeline = None
@@ -49,8 +49,7 @@ def main() -> None:
         passed += ok
         print(f"[{'PASS' if ok else 'FALLBACK'}] {q}")
         for h in hits[:3]:
-            where = h.document + (f" p.{h.page}" if h.page else "") + (f" / {h.section}" if h.section else "")
-            print(f"    {h.score:.2f}  {where}")
+            print(f"    {h.score:.2f}  {h.document}")
         if pipeline and ok:
             r = pipeline.ask(q)
             print(f"    -> {'GROUNDED' if r.grounded else 'MODEL SAID NO ANSWER'}: {r.answer[:200]!r}")

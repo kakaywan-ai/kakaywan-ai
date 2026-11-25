@@ -21,9 +21,7 @@ Successful grounded response:
   "answer": "Answer based on retrieved approved document passages.",
   "sources": [
     {
-      "document": "Document title",
-      "page": null,
-      "section": "Section title"
+      "document": "processed"
     }
   ],
   "grounded": true
@@ -44,7 +42,7 @@ Insufficient evidence response:
 
 - `message` is required and must not be empty.
 - `sources` must refer to actual retrieved passages.
-- Do not invent page numbers, document titles, or URLs. A plain-text source has no page number.
+- Return only the source document recorded in the index.
 - `grounded` is assigned by backend validation, not copied from model-generated text.
 - If the system cannot establish sufficient evidence, return the fallback.
 - `mode` is optional and must be a string.

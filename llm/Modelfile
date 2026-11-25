@@ -1,6 +1,6 @@
 # Kordi persona on top of Gemma 3 (4B).
 # Build:  ollama create kordi -f llm/Modelfile
-# Then set OLLAMA_MODEL=kordi in .env (or keep gemma3:4b; the pipeline sends its own rules).
+# Set OLLAMA_MODEL=kordi in the shell to use it (or keep gemma3:4b; the pipeline sends its own rules).
 # NOTE: a Modelfile configures a model. It is NOT fine-tuning and adds no knowledge.
 FROM gemma3:4b
 PARAMETER temperature 0.2

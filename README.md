@@ -17,7 +17,7 @@ before relying on the chatbot.
 
 - Build a curated knowledge base from documents that the team is authorized to use.
 - Retrieve relevant passages for each user question.
-- Show source information, including document title and page or section where available.
+- Show the indexed source document.
 - Return a clear fallback when the retrieved evidence is missing, weak, or insufficient.
 - Keep the system privacy-conscious and exclude citizen complaint logs and personal records.
 - Make the interface accessible to both residents and visitors.
@@ -31,7 +31,7 @@ before relying on the chatbot.
 | Local frontend server | Python standard-library HTTP server (no FastAPI) |
 | Local model serving | Ollama |
 | Candidate language models | Gemma 3 and Llama 3 variants, selected after hardware and quality tests |
-| Embeddings | Sentence Transformers (`all-MiniLM-L6-v2` by default) |
+| Embeddings | Ollama (`nomic-embed-text` by default) |
 | Vector store | ChromaDB |
 | Data input | Approved, cleaned UTF-8 text at `data/processed.txt` |
 | Frontend | Existing HTML/CSS/JavaScript prototype initially; framework decision to be confirmed by the team |
@@ -94,27 +94,24 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-6. Copy `.env.example` to `.env` and adjust local settings. Never commit `.env`.
-
-7. Place the approved, cleaned UTF-8 text at `data/processed.txt`. This is the only
-default data file; the Ollama Lab Guide PDF is reference material and must not be
-ingested. Then build the local RAG index and start the frontend server:
+6. Place the approved, cleaned UTF-8 text at `data/processed.txt`. This is the
+only chatbot data file; the Ollama Lab Guide is reference material, not data.
+Pull the chat and embedding models, then build the local RAG index and start
+the frontend server:
 
 ```powershell
 ollama pull gemma3:4b
+ollama pull nomic-embed-text
 python -m ingest.ingest --source data/processed.txt --reset
 python -m api.main
 ```
 
-The first ingestion downloads the configured Sentence Transformers embedding
-model if it is not already cached.
-
 Open `http://127.0.0.1:8000`. The frontend sends each question to the local
 server, which runs the safety check, Chroma retrieval, evidence threshold, and
-Ollama generation. Answers must come from retrieved passages; unsupported
-questions receive the fallback. Plain text sources have no page metadata.
+Ollama generation. The answer model gets only retrieved passages; unsupported
+questions receive the fallback.
 
-8. Check available model and hardware capacity before downloading a model. For a lightweight initial test:
+7. Check available model and hardware capacity before downloading a model. For a lightweight chat-model test:
 
 ```bash
 ollama pull gemma3:1b
@@ -169,9 +166,7 @@ Response when sufficient evidence is retrieved:
   "answer": "Answer grounded in the retrieved official passages.",
   "sources": [
     {
-      "document": "Document title",
-      "page": null,
-      "section": "Relevant section"
+      "document": "Document title"
     }
   ],
   "grounded": true
@@ -188,7 +183,7 @@ Response when evidence is insufficient:
 }
 ```
 
-The final schema may be adjusted by the Team Leader, Isaac, and Karl together. Do not set `grounded: true` merely because the language model says it used sources; it must reflect the backend's evidence checks.
+Do not set `grounded: true` merely because the language model says it used sources; it must reflect the backend's retrieval checks.
 
 ## Evaluation expectations
 

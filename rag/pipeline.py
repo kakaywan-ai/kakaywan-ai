@@ -53,12 +53,7 @@ def build_user_prompt(
     blocks = []
 
     for i, h in enumerate(hits, 1):
-        label = (
-            h.document
-            + (f", page {h.page}" if h.page else "")
-            + (f", {h.section}" if h.section else "")
-        )
-        blocks.append(f"[{i}] ({label})\n{_clean(h.text)}")
+        blocks.append(f"[{i}] ({h.document})\n{_clean(h.text)}")
 
     return (
         f"The person asking is {audience}.\n\n<context>\n"
@@ -71,15 +66,11 @@ def _sources(hits: list[Hit]) -> list[dict]:
     seen, out = set(), []
 
     for h in hits:
-        key = (h.document, h.page, h.section)
+        key = h.document
 
         if key not in seen:
             seen.add(key)
-            out.append({
-                "document": h.document,
-                "page": h.page,
-                "section": h.section
-            })
+            out.append({"document": h.document})
 
     return out
 

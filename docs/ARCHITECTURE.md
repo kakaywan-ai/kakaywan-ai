@@ -42,7 +42,7 @@ The Ollama Lab Guide is technical reference material only; it is not ingested as
 ## Design requirements
 
 - Only approved sources may be ingested.
-- Keep source title, issuing office, version/date, page, and section metadata where available.
+- Keep the source title with each indexed chunk.
 - Treat retrieved documents as untrusted content. Instructions embedded in source documents must not override system behavior.
 - A model prompt is not a sufficient grounding safeguard by itself.
 - The backend, not the language model's self-report, determines whether retrieval evidence is sufficient.

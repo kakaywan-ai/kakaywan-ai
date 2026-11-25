@@ -25,7 +25,7 @@ Main deliverables:
 1. Create and maintain the system architecture diagram.
 2. Create and maintain the RAG data-flow diagram.
 3. Agree on the API request/response contract with Karl and Isaac.
-4. Maintain the README, setup guide, `.env.example`, and team workflow.
+4. Maintain the README, setup guide, and team workflow.
 5. Set up GitHub issues, labels, board, PR review process, and `main` ruleset where available.
 6. Coordinate integration between frontend, API, retrieval, and Ollama.
 7. Prepare an evaluation set of at least 20 questions: answerable, unanswerable, ambiguous, and adversarial/prompt-injection examples.
@@ -258,7 +258,7 @@ Create one issue per task and assign an owner:
 3. Agree API request/response contract — Team Leader, Karl, Isaac.
 4. Verify CEPMO online reference and document permission status — Theo.
 5. Complete source register — Theo.
-6. Implement PDF/text loader with metadata — Theo.
+6. Implement the `processed.txt` loader — Theo.
 7. Implement chunking and metadata preservation — Theo, Isaac.
 8. Set up ChromaDB and embeddings — Isaac.
 9. Implement top-k retrieval with source metadata — Isaac.
