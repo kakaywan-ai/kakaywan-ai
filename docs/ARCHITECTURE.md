@@ -1,6 +1,6 @@
 # System Architecture
 
-Status: planned architecture; update this document as implementation decisions are finalized.
+Status: local RAG pipeline with a standard-library HTTP server for the frontend.
 
 ```text
 User
@@ -9,7 +9,7 @@ User
 Frontend (Kordi forest/chat UI)
   |
   v
-FastAPI chat endpoint
+Python standard-library HTTP server
   |
   v
 RAG pipeline
@@ -35,7 +35,9 @@ Frontend answer + source chips
 
 ## Ingestion path
 
-Approved source document → text extraction/OCR when necessary → cleaning → chunking with page/section metadata → embeddings → ChromaDB.
+Approved, cleaned `data/processed.txt` → chunking → embeddings → ChromaDB.
+
+The Ollama Lab Guide is technical reference material only; it is not ingested as chatbot data. The local HTTP server serves the frontend and passes its chat requests to the RAG pipeline. It does not supply an alternate knowledge source.
 
 ## Design requirements
 

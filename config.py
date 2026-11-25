@@ -26,11 +26,11 @@ EMBED_MODEL = os.getenv("EMBED_MODEL", "all-MiniLM-L6-v2")
 CHROMA_DIR = os.getenv("CHROMA_DIR", str(ROOT / "chroma_db"))
 COLLECTION = os.getenv("CHROMA_COLLECTION", "kakaywan")
 
-CHUNK_SIZE = _i("CHUNK_SIZE", 800)
-CHUNK_OVERLAP = _i("CHUNK_OVERLAP", 150)
-TOP_K = _i("TOP_K", 4)
+CHUNK_SIZE = _i("CHUNK_SIZE", 1000)
+CHUNK_OVERLAP = _i("CHUNK_OVERLAP", 200)
+TOP_K = _i("TOP_K", 3)
 # Cosine similarity a chunk must reach to be considered by the model.
 MIN_SIMILARITY = _f("MIN_SIMILARITY", 0.25)
 
 MAX_MESSAGE_CHARS = _i("MAX_MESSAGE_CHARS", 500)
-DATA_DIR = os.getenv("DATA_DIR", str(ROOT / "data" / "processed"))
+DATA_SOURCE = os.getenv("DATA_SOURCE", str(ROOT / "data" / "processed.txt"))

@@ -12,7 +12,7 @@ Create one issue per task, add an owner, label, and acceptance criteria. Do not 
 ## Theo — Knowledge Base and Data
 6. Verify CEPMO online reference and record source provenance/permission.
 7. Complete `data/SOURCES.md`.
-8. Implement document text extraction and metadata preservation.
+8. Prepare the approved, cleaned UTF-8 text source and preserve its metadata.
 9. Implement cleaning and chunking preparation.
 10. Review source freshness, duplicates, and conflicts.
 
@@ -28,10 +28,10 @@ Create one issue per task, add an owner, label, and acceptance criteria. Do not 
 17. Create and explain Kordi Modelfile.
 18. Implement Python Ollama client.
 19. Compare candidate models on the same evaluation questions.
-20. Run optional LoRA experiment if core RAG is stable.
+20. Keep implementation focused on retrieval-augmented generation; do not add model fine-tuning.
 
 ## Karl — Frontend and API
-21. Build FastAPI chat endpoint using the agreed contract.
+21. Build local standard-library chat server using the agreed contract.
 22. Connect the existing forest prototype to the API.
 23. Display sources and implement loading/error/fallback states.
 24. Test responsive UI and API failure handling.

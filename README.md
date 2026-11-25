@@ -8,9 +8,10 @@ Kordi uses Retrieval-Augmented Generation (RAG): the system retrieves relevant p
 
 ## Project status
 
-**Starter stage.** The forest-style frontend prototype is included. The live backend, document ingestion, retrieval pipeline, source validation, and end-to-end integration still need to be implemented and tested.
-
-Do not describe the current prototype as a functioning RAG chatbot until the retrieval backend is connected and evaluated.
+The repository includes a local RAG pipeline, text ingestion, a standard-library
+HTTP server for the frontend, and a local Ollama client. Use an approved text
+source, build its ChromaDB index, and evaluate retrieval and answer grounding
+before relying on the chatbot.
 
 ## Core goals
 
@@ -23,18 +24,18 @@ Do not describe the current prototype as a functioning RAG chatbot until the ret
 
 **Important limitation:** prompts and RAG do not guarantee hallucination-free output. The team must implement retrieval sufficiency checks, source attribution, fallback behavior, testing, and human review.
 
-## Planned technology
+## Technology
 
-| Layer | Planned tools |
+| Layer | Tools |
 |---|---|
-| Backend/API | Python, FastAPI, Uvicorn |
+| Local frontend server | Python standard-library HTTP server (no FastAPI) |
 | Local model serving | Ollama |
 | Candidate language models | Gemma 3 and Llama 3 variants, selected after hardware and quality tests |
-| Embeddings | Sentence Transformers |
+| Embeddings | Sentence Transformers (`all-MiniLM-L6-v2` by default) |
 | Vector store | ChromaDB |
-| Document extraction | PyMuPDF or pypdf; OCR only when needed |
+| Data input | Approved, cleaned UTF-8 text at `data/processed.txt` |
 | Frontend | Existing HTML/CSS/JavaScript prototype initially; framework decision to be confirmed by the team |
-| Testing | pytest and API tests |
+| Testing | pytest and local HTTP/RAG tests |
 
 The team must record the exact versions that are tested together. Do not assume every package version is compatible.
 
@@ -42,17 +43,16 @@ The team must record the exact versions that are tested together. Do not assume 
 
 ```text
 kakaywan-ai/
-├── api/                 FastAPI routes and request/response handling
+├── api/                 Standard-library local HTTP server for the frontend
 ├── data/
 │   ├── SOURCES.md       Register of approved sources
-│   └── processed/       Permitted, cleaned text for development
+│   └── processed.txt    Local, cleaned text file (git-ignored; add it yourself)
 ├── docs/                Public technical documentation
 ├── eval/                Test questions, metrics, and results
 ├── frontend/
 │   └── prototype/       Initial clickable forest UI
-├── ingest/              Document loading, cleaning, and chunking
+├── ingest/              Text loading and chunking
 ├── rag/                 Embeddings, retrieval, grounding, and guardrails
-├── training/            Approved experiments and training notes
 ├── .github/             Issue and pull-request templates
 ├── CONTRIBUTING.md      Git workflow and collaboration rules
 └── TASKS.md             Roles, deliverables, and project schedule
@@ -96,20 +96,25 @@ pip install -r requirements.txt
 
 6. Copy `.env.example` to `.env` and adjust local settings. Never commit `.env`.
 
-To use one local PDF as Kordi's knowledge base, place it at `data/processed.pdf`,
-pull the configured embedding model, ingest it, and start the API:
+7. Place the approved, cleaned UTF-8 text at `data/processed.txt`. This is the only
+default data file; the Ollama Lab Guide PDF is reference material and must not be
+ingested. Then build the local RAG index and start the frontend server:
 
 ```powershell
-ollama pull gemma3:1b
-ollama pull nomic-embed-text
-python -m ingest.pdf_ingest
-python -m uvicorn api.main:app --reload
+ollama pull gemma3:4b
+python -m ingest.ingest --source data/processed.txt --reset
+python -m api.main
 ```
 
-Open `http://127.0.0.1:8000`. Kordi will answer through `POST /api/chat` and
-return source page metadata when the PDF provides extractable text.
+The first ingestion downloads the configured Sentence Transformers embedding
+model if it is not already cached.
 
-7. Check available model and hardware capacity before downloading a model. For a lightweight initial test:
+Open `http://127.0.0.1:8000`. The frontend sends each question to the local
+server, which runs the safety check, Chroma retrieval, evidence threshold, and
+Ollama generation. Answers must come from retrieved passages; unsupported
+questions receive the fallback. Plain text sources have no page metadata.
+
+8. Check available model and hardware capacity before downloading a model. For a lightweight initial test:
 
 ```bash
 ollama pull gemma3:1b
@@ -143,9 +148,9 @@ This repository is public. **Public code does not mean every project document is
 
 The project is designed to minimize personal-data use. This README is not a legal determination or a certification of compliance with RA 10173; the team must follow applicable institutional guidance and confirm its actual data-handling practices.
 
-## API contract (initial proposal)
+## API contract
 
-The frontend and backend should agree on one contract before integration. The following is a proposed starting point, not a claim that the endpoint already exists.
+The standard-library local server exposes the frontend's chat contract:
 
 `POST /api/chat`
 
@@ -165,7 +170,7 @@ Response when sufficient evidence is retrieved:
   "sources": [
     {
       "document": "Document title",
-      "page": 5,
+      "page": null,
       "section": "Relevant section"
     }
   ],

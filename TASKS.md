@@ -43,12 +43,11 @@ First tasks:
 
 ### Jerlyn Jyd M. Cortez — Ollama and LLM Lead
 
-**Primary responsibility:** Local language model setup, model selection, Ollama integration, and the team's LLM learning/training experiment.
+**Primary responsibility:** Local language model setup, model selection, Ollama integration, and the team's LLM learning.
 
 Owns:
 - Ollama setup notes under `docs/`
 - `llm/` or the agreed Ollama client module
-- `training/` experiment coordination
 - Model comparison notes
 
 Main deliverables:
@@ -58,15 +57,14 @@ Main deliverables:
 4. Create and explain a Kordi Modelfile using `FROM`, `PARAMETER`, and `SYSTEM`.
 5. Implement the Python Ollama client and coordinate its interface with Theo.
 6. Compare models using the same questions and record answer quality, instruction following, latency, and hardware use.
-7. Lead the optional LoRA fine-tuning experiment if the core RAG prototype is stable.
-8. Document what was actually trained, what data was used, and the evaluation results.
+7. Keep model use focused on the RAG pipeline; do not fine-tune or train the model.
+8. Document tested model settings and evaluation results.
 
 Important distinction:
 - Ollama runs and serves local models.
 - A Modelfile configures a model; it is not fine-tuning.
-- Fine-tuning changes model weights.
 - RAG retrieves external knowledge at question time.
-- RAG is the factual knowledge mechanism for this project; fine-tuning is an optional experiment for style or answer format.
+- RAG is the project's factual knowledge mechanism.
 
 ### Isaac A. Bagsangi — Knowledge Base and Data Lead
 
@@ -84,12 +82,12 @@ Main deliverables:
 2. Record title, issuing office, publication/date received, source URL or how received, permission/publication status, and version.
 3. Verify the CEPMO online reference document before recording it as an official source.
 4. Confirm whether received documents may be used internally and whether they may be redistributed publicly. These are separate permissions.
-5. Build PDF/text extraction and cleaning.
-6. Use OCR only when the source is scanned and text extraction is insufficient.
-7. Preserve page numbers, headings, source title, dates, and other metadata needed for citations.
+5. Prepare the approved, cleaned UTF-8 text source.
+6. Do not add a PDF/OCR ingestion path; the project's input is `data/processed.txt`.
+7. Preserve available headings, page markers, source title, dates, and other metadata needed for citations.
 8. Coordinate chunking requirements and metadata with Isaac.
 9. Flag outdated, duplicate, incomplete, or conflicting documents.
-10. Ensure no PII, citizen complaint records, or non-approved material enters the public repository, training dataset, or chatbot knowledge base.
+10. Ensure no PII, citizen complaint records, or non-approved material enters the public repository or chatbot knowledge base.
 
 Do not upload original CEPMO files to the public repository merely because they were provided to the team.
 
@@ -179,12 +177,12 @@ Every member must complete these shared exercises:
 5. Run the Kordi Modelfile and explain what it changes.
 6. Install the Python Ollama package and run a basic `ollama.chat()` example.
 7. Explain the RAG flow: document extraction → chunking → embeddings → ChromaDB → retrieval → context to Ollama → answer and sources.
-8. Explain the difference between running a model, configuring it, fine-tuning it, and using RAG.
+8. Explain how Ollama model configuration works with the RAG retrieval flow.
 9. Participate in model evaluation and explain the results.
 
 Suggested mini-workshops:
 - Jerlyn: Ollama, model selection, Modelfile, Python client.
-- Isaac: source preparation, PDF extraction, metadata, chunking.
+- Isaac: source preparation, text metadata, and chunking.
 - Theo: embeddings, vector databases, retrieval, guardrails.
 - Karl: API integration, frontend request/response handling.
 - Team Leader: architecture, evaluation, integration, and defense.
@@ -203,7 +201,7 @@ Suggested mini-workshops:
 - Isaac: extraction, cleaning, chunking, metadata, and approved sample corpus.
 - Theo: embeddings, ChromaDB, retrieval, and retrieval tests.
 - Jerlyn: Ollama Python client and model comparison baseline.
-- Karl: FastAPI endpoint and frontend API connection using a placeholder response first.
+- Karl: local HTTP server and frontend connection using a placeholder response first.
 - Team Leader: integrate early, test the end-to-end flow, and document blockers.
 - Target: one question can travel from frontend to API to retrieval to Ollama and return an answer with source metadata by Day 5.
 
@@ -216,7 +214,7 @@ Suggested mini-workshops:
 
 ### Days 8–9: Evaluation and improvement
 - All members: run the shared question set and record failures.
-- Jerlyn: compare candidate language models; perform LoRA experiment only if core work is stable.
+- Jerlyn: compare candidate language models using the same RAG evaluation questions.
 - Theo: compare retrieval settings and embedding models.
 - Isaac: verify answer evidence against source documents and maintain source register.
 - Karl: usability and responsive-interface testing.
@@ -268,7 +266,7 @@ Create one issue per task and assign an owner:
 11. Install Ollama and document setup — Jerlyn.
 12. Implement Python Ollama client — Jerlyn.
 13. Compare candidate models on fixed questions — Jerlyn, all members.
-14. Build FastAPI chat endpoint — Karl.
+14. Build local standard-library chat server — Karl.
 15. Connect frontend to API — Karl.
 16. Display source citations and fallback states — Karl, Isaac.
 17. Create evaluation dataset — Team Leader, all members.

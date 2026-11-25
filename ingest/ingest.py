@@ -1,6 +1,6 @@
-"""Load approved documents -> chunk with page/section metadata -> embed -> ChromaDB.
+"""Load approved text -> chunk with section metadata -> embed -> ChromaDB.
 
-Usage:  python -m ingest.ingest [--source data/processed] [--reset]
+Usage:  python -m ingest.ingest [--source data/processed.txt] [--reset]
 
 Only ingest documents listed as approved in data/SOURCES.md.
 """
@@ -65,19 +65,19 @@ def _markdown_sections(text: str) -> Iterator[tuple[str, str]]:
         yield heading, "\n".join(buf)
 
 
-def load_chunks(source_dir: str | Path, size: int | None = None, overlap: int | None = None) -> list[Chunk]:
+def load_chunks(source_path: str | Path, size: int | None = None, overlap: int | None = None) -> list[Chunk]:
     size, overlap = size or config.CHUNK_SIZE, config.CHUNK_OVERLAP if overlap is None else overlap
     chunks: list[Chunk] = []
-    for path in sorted(Path(source_dir).rglob("*")):
+    source = Path(source_path)
+    if not source.exists():
+        raise FileNotFoundError(f"Data source not found: {source}")
+    if source.is_file() and source.suffix.lower() not in {".md", ".txt"}:
+        raise ValueError("Only .txt and .md text sources can be ingested; PDF files are not supported.")
+    paths = [source] if source.is_file() else sorted(source.rglob("*"))
+    for path in paths:
         suffix = path.suffix.lower()
-        if suffix == ".pdf":
-            from pypdf import PdfReader
-            title = path.stem.replace("_", " ").replace("-", " ")
-            for n, page in enumerate(PdfReader(str(path)).pages, 1):
-                for piece in split_text(page.extract_text() or "", size, overlap):
-                    chunks.append(Chunk(piece, title, n, "", path.name))
-        elif suffix in {".md", ".txt"}:
-            text = path.read_text(encoding="utf-8")
+        if suffix in {".md", ".txt"}:
+            text = path.read_text(encoding="utf-8-sig")
             title = _title(path, text)
             sections = _markdown_sections(text) if suffix == ".md" else [("", text)]
             for heading, body in sections:
@@ -105,13 +105,13 @@ def ingest(source_dir: str | Path, embedder, chroma_dir: Optional[str] = None, r
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--source", default=config.DATA_DIR)
+    ap.add_argument("--source", default=config.DATA_SOURCE)
     ap.add_argument("--reset", action="store_true", help="rebuild the collection from scratch")
     args = ap.parse_args()
     from rag.embeddings import Embedder
     print("Reminder: ingest only sources marked approved in data/SOURCES.md")
     n = ingest(args.source, Embedder(), reset=args.reset)
-    print(f"Indexed {n} chunks from {args.source}" if n else f"No .pdf/.md/.txt files found in {args.source}")
+    print(f"Indexed {n} chunks from {args.source}" if n else f"No .md or .txt files found in {args.source}")
 
 
 if __name__ == "__main__":

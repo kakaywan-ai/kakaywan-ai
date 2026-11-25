@@ -37,7 +37,9 @@ def main() -> None:
     if args.answer:
         from llm.ollama_client import OllamaClient
         from rag.pipeline import KordiPipeline
-        pipeline = KordiPipeline(retriever, OllamaClient(), args.min)
+        from rag.safety import SafetyGuard
+        llm = OllamaClient()
+        pipeline = KordiPipeline(retriever, llm, args.min, guard=SafetyGuard(llm))
 
     passed = 0
     for q in qs:
