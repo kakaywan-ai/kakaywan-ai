@@ -1,6 +1,6 @@
-# API Contract — Initial Proposal
+# API Contract
 
-Status: proposed. Team Leader, Karl, and Isaac must agree on the final schema before implementation.
+Status: implemented by the local Python standard-library HTTP server.
 
 ## Endpoint
 
@@ -21,9 +21,7 @@ Successful grounded response:
   "answer": "Answer based on retrieved approved document passages.",
   "sources": [
     {
-      "document": "Document title",
-      "page": 5,
-      "section": "Section title"
+      "document": "processed"
     }
   ],
   "grounded": true
@@ -44,7 +42,9 @@ Insufficient evidence response:
 
 - `message` is required and must not be empty.
 - `sources` must refer to actual retrieved passages.
-- Do not invent page numbers, document titles, or URLs.
+- Return only the source document recorded in the index.
 - `grounded` is assigned by backend validation, not copied from model-generated text.
 - If the system cannot establish sufficient evidence, return the fallback.
-- Agree on HTTP status codes, error schema, maximum message length, and optional language/mode fields before frontend integration.
+- `mode` is optional and must be a string.
+- Invalid JSON returns 400; invalid messages return 422; oversized request bodies return 413; unavailable Ollama or invalid safety-classifier output returns 503.
+- Messages are limited by `MAX_MESSAGE_CHARS` (500 by default).

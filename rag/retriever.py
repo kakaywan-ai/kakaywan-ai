@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 import chromadb
 
@@ -13,8 +12,6 @@ import config
 class Hit:
     text: str
     document: str
-    page: Optional[int]
-    section: Optional[str]
     score: float  # cosine similarity, higher = more similar
 
 
@@ -49,8 +46,6 @@ class Retriever:
             hits.append(Hit(
                 text=text,
                 document=meta["document"],
-                page=meta.get("page") or None,
-                section=meta.get("section") or None,
                 score=1.0 - dist,
             ))
         return sorted(hits, key=lambda h: h.score, reverse=True)

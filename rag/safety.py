@@ -21,8 +21,14 @@ TOPIC_NOTE = (
     "waste management, and climate action."
 )
 
+RESPECT_REPLY = (
+    "Let's keep our conversation respectful. I can help with questions about "
+    "Baguio City's environment, parks, trees, waste management, and climate "
+    "action. Please rephrase your question."
+)
+
 REPLIES = {
-    "ABUSE": "Let's keep our conversation respectful." + TOPIC_NOTE + " Please rephrase your question.",
+    "ABUSE": RESPECT_REPLY,
     "SEXUAL": "I can't help with that." + TOPIC_NOTE,
     "THREAT": "I can't help with that." + TOPIC_NOTE,
     "MANIPULATION": "I can't change how I work." + TOPIC_NOTE,
@@ -33,6 +39,11 @@ REPLIES = {
         "0917-899-8727. If you are in immediate danger, call 911."
     ),
 }
+
+
+class SafetyClassifierError(RuntimeError):
+    """The safety model returned a response outside its label contract."""
+
 
 SELF_HARM_PATTERNS = re.compile(
     r"\b("
@@ -54,10 +65,8 @@ class SafetyGuard:
         """Return a reply if the message should be blocked, otherwise None."""
         if SELF_HARM_PATTERNS.search(text):
             return REPLIES["SELF_HARM"]
-        try:
-            raw = self.llm.chat(SAFETY_PROMPT, f"Message to classify:\n{text}", temperature=0)
-        except Exception:
-            return None  # fail open: the main pipeline still has its own guardrails
-        match = re.search(r"[A-Za-z_]+", raw or "")
-        label = match.group(0).upper() if match else "OK"
+        raw = self.llm.chat(SAFETY_PROMPT, f"Message to classify:\n{text}", temperature=0)
+        label = raw.strip().upper()
+        if label not in {"OK", *REPLIES}:
+            raise SafetyClassifierError("Safety classifier returned an invalid label")
         return REPLIES.get(label)
